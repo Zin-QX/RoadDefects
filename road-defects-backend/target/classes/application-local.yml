@@ -1,8 +1,0 @@
-# 对象存储配置（需要从腾讯云获取）
-cos:
-  client:
-    host: https://zinqx-1391992760.cos.ap-guangzhou.myqcloud.com
-    secretId: AKIDIRP8uVu66uWzKUTM2WwBE5MVSDmFXeZH
-    secretKey: b0CG7mJleMsCMK5eKsGVaUCnDRTJxRo2
-    region: ap-guangzhou
-    bucket: zinqx-1391992760
