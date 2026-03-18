@@ -52,26 +52,6 @@ public class Picture {
     private Long picSize;
 
     /**
-     * 图片宽度
-     */
-    private Integer picWidth;
-
-    /**
-     * 图片高度
-     */
-    private Integer picHeight;
-
-    /**
-     * 图片宽高比例
-     */
-    private Double picScale;
-
-    /**
-     * 图片格式
-     */
-    private String picFormat;
-
-    /**
      * 创建用户 id
      */
     private Long userId;
@@ -82,14 +62,29 @@ public class Picture {
     private Date createTime;
 
     /**
-     * 编辑时间
-     */
-    private Date editTime;
-
-    /**
      * 更新时间
      */
     private Date updateTime;
+
+    /**
+     * 状态：0-待审核; 1-通过; 2-拒绝
+     */
+    private Integer reviewStatus;
+
+    /**
+     * 审核信息
+     */
+    private String reviewMessage;
+
+    /**
+     * 审核人 id
+     */
+    private Long reviewerId;
+
+    /**
+     * 审核时间
+     */
+    private Date reviewTime;
 
     /**
      * 是否删除

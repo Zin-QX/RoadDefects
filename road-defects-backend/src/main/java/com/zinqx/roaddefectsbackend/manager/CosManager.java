@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.zinqx.roaddefectsbackend.config.CosClientConfig;
 import javax.annotation.Resource;
 import java.io.File;
+import java.io.InputStream;
 
 @Component
 public class CosManager {  
@@ -48,5 +49,33 @@ public class CosManager {
         return cosClient.putObject(putObjectRequest);
     }
 
-    // ... 一些操作 COS 的方法  
+    /**
+     * 使用流上传对象
+     *
+     * @param key  唯一键
+     * @param inputStream 输入流
+     */
+    public PutObjectResult putObject(String key, InputStream inputStream) {
+        PutObjectRequest putObjectRequest = new PutObjectRequest(cosClientConfig.getBucket(), key,
+                inputStream, null);
+        return cosClient.putObject(putObjectRequest);
+    }
+
+    /**
+     * 使用流上传对象（附带图片信息）
+     *
+     * @param key  唯一键
+     * @param inputStream 输入流
+     */
+    public PutObjectResult putPictureObject(String key, InputStream inputStream) {
+        PutObjectRequest putObjectRequest = new PutObjectRequest(cosClientConfig.getBucket(), key,
+                inputStream, null);
+        // 对图片进行处理（获取基本信息也被视作为一种处理）
+        PicOperations picOperations = new PicOperations();
+        // 1 表示返回原图信息
+        picOperations.setIsPicInfo(1);
+        // 构造处理参数
+        putObjectRequest.setPicOperations(picOperations);
+        return cosClient.putObject(putObjectRequest);
+    }
 }

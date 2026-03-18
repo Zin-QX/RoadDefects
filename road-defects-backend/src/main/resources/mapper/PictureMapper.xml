@@ -8,25 +8,19 @@
             <id property="id" column="id" />
             <result property="url" column="url" />
             <result property="name" column="name" />
-            <result property="latitude" column="latitude" />
             <result property="longitude" column="longitude" />
+            <result property="latitude" column="latitude" />
             <result property="address" column="address" />
             <result property="picSize" column="picSize" />
-            <result property="picWidth" column="picWidth" />
-            <result property="picHeight" column="picHeight" />
-            <result property="picScale" column="picScale" />
-            <result property="picFormat" column="picFormat" />
             <result property="userId" column="userId" />
             <result property="createTime" column="createTime" />
-            <result property="editTime" column="editTime" />
             <result property="updateTime" column="updateTime" />
             <result property="isDelete" column="isDelete" />
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,url,name,latitude,longitude,address,
-        picSize,picWidth,picHeight,
-        picScale,picFormat,userId,createTime,editTime,
-        updateTime,isDelete
+        id,url,name,longitude,latitude,address,
+        picSize,userId,createTime,updateTime,
+        isDelete
     </sql>
 </mapper>
