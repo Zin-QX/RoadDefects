@@ -48,27 +48,7 @@ public class PictureVO implements Serializable {
      * 文件体积  
      */  
     private Long picSize;  
-  
-    /**  
-     * 图片宽度  
-     */  
-    private Integer picWidth;  
-  
-    /**  
-     * 图片高度  
-     */  
-    private Integer picHeight;  
-  
-    /**  
-     * 图片比例  
-     */  
-    private Double picScale;  
-  
-    /**  
-     * 图片格式  
-     */  
-    private String picFormat;  
-  
+
     /**  
      * 创建用户 id
      */  
@@ -78,12 +58,7 @@ public class PictureVO implements Serializable {
      * 创建时间  
      */  
     private Date createTime;
-  
-    /**  
-     * 编辑时间  
-     */  
-    private Date editTime;  
-  
+
     /**  
      * 更新时间  
      */  

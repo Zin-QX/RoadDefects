@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -47,32 +48,19 @@ public class FileManager {
         String uploadFilename = String.format("%s_%s.%s", DateUtil.formatDate(new Date()), uuid,
                 FileUtil.getSuffix(originFilename));
         String uploadPath = String.format("/%s/%s", uploadPathPrefix, uploadFilename);
-        File file = null;
-        try {
-            // 创建临时文件
-            file = File.createTempFile(uploadPath, null);
-            multipartFile.transferTo(file);
-            // 上传图片
-            PutObjectResult putObjectResult = cosManager.putPictureObject(uploadPath, file);
-            ImageInfo imageInfo = putObjectResult.getCiUploadResult().getOriginalInfo().getImageInfo();
+        
+        try (InputStream inputStream = multipartFile.getInputStream()) {
+            // 使用流上传图片
+            cosManager.putObject(uploadPath, inputStream);
             // 封装返回结果
             UploadPictureResult uploadPictureResult = new UploadPictureResult();
-            int picWidth = imageInfo.getWidth();
-            int picHeight = imageInfo.getHeight();
-            double picScale = NumberUtil.round(picWidth * 1.0 / picHeight, 2).doubleValue();
             uploadPictureResult.setPicName(FileUtil.mainName(originFilename));
-            uploadPictureResult.setPicWidth(picWidth);
-            uploadPictureResult.setPicHeight(picHeight);
-            uploadPictureResult.setPicScale(picScale);
-            uploadPictureResult.setPicFormat(imageInfo.getFormat());
-            uploadPictureResult.setPicSize(FileUtil.size(file));
+            uploadPictureResult.setPicSize(multipartFile.getSize());
             uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + uploadPath);
             return uploadPictureResult;
         } catch (Exception e) {
             log.error("图片上传到对象存储失败", e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
-        } finally {
-            this.deleteTempFile(file);
         }
     }
 
