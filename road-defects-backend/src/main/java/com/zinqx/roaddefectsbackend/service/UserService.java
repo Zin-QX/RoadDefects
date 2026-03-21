@@ -8,12 +8,11 @@ import com.zinqx.roaddefectsbackend.model.entity.User;
 import com.zinqx.roaddefectsbackend.model.vo.LoginUserVO;
 import com.zinqx.roaddefectsbackend.model.vo.UserVO;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
 * @author 23378
-* @description 针对表【user(用户)】的数据库操作Service
+* @description 针对表【user(用户)】的数据库操作 Service
 * @createDate 2025-12-13 10:15:24
 */
 public interface UserService extends IService<User> {
@@ -41,33 +40,25 @@ public interface UserService extends IService<User> {
      *
      * @param userAccount  用户账户
      * @param userPassword 用户密码
-     * @param request
-     * @return 脱敏后的用户信息
+     * @return JWT 令牌
      */
-    LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request);
+    String userLogin(String userAccount, String userPassword);
 
     /**
-     * 获取当前登录用户
+     * 根据 token 获取登录用户
      *
-     * @param request
-     * @return
+     * @param token JWT 令牌
+     * @return 用户实体
      */
-    User getLoginUser(HttpServletRequest request);
+    User getUserByToken(String token);
 
     /**
      * 获取脱敏的已登录用户信息
      *
-     * @return
+     * @param user 用户实体
+     * @return 脱敏后的用户信息
      */
     LoginUserVO getLoginUserVO(User user);
-
-    /**
-     * 用户注销
-     *
-     * @param request
-     * @return
-     */
-    boolean userLogout(HttpServletRequest request);
 
     /**
      * 获取脱敏的用户信息

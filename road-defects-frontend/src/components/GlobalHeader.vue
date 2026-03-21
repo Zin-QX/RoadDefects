@@ -109,14 +109,14 @@ const handleLogout = async () => {
 }
 
 .user-avatar {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .user-name {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 500;
 }
 </style>

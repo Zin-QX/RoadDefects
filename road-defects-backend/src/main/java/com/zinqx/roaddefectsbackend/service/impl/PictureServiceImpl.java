@@ -54,6 +54,36 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     @Resource
     private DistanceCalculateOfVincentyUtil vincentyStrategy;
 
+//    @Override
+//    public PictureVO uploadPicture(MultipartFile multipartFile, PictureUploadRequest pictureUploadRequest) {
+//
+//        // 上传图片，得到信息
+//        // 按照用户 id 划分目录
+//        String uploadPathPrefix = String.format("RoadDefects/%s",111L);
+//        UploadPictureResult uploadPictureResult = fileManager.uploadPicture(multipartFile, uploadPathPrefix);
+//        // 构造要入库的图片信息
+//        Picture picture = new Picture();
+//        // 设置经纬度
+//        if (pictureUploadRequest.getLatitude() != null && pictureUploadRequest.getLongitude() != null) {
+//            picture.setLatitude(pictureUploadRequest.getLatitude());
+//            picture.setLongitude(pictureUploadRequest.getLongitude());
+//        }else {
+//            ThrowUtils.throwIf(pictureUploadRequest.getLatitude() == null, ErrorCode.PARAMS_ERROR, "经纬度不能为空");
+//        }
+//        if (pictureUploadRequest.getAddress() != null){
+//            picture.setAddress(pictureUploadRequest.getAddress());
+//        }else {
+//            ThrowUtils.throwIf(true, ErrorCode.PARAMS_ERROR, "地址不能为空");
+//        }
+//        picture.setUrl(uploadPictureResult.getUrl());
+//        picture.setUserId(111L);
+//        picture.setName(uploadPictureResult.getPicName());
+//        picture.setPicSize(uploadPictureResult.getPicSize());
+//        boolean result = this.save(picture);
+//        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败");
+//        return PictureVO.objToVo(picture);
+//    }
+
     @Override
     public PictureVO uploadPicture(MultipartFile multipartFile, PictureUploadRequest pictureUploadRequest, User loginUser) {
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
@@ -74,9 +104,9 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             }
             // 使用Vincenty公式计算距离
             double distance = vincentyStrategy.calculateDistance(
-                    existingPicture.getLongitude(), 
-                    existingPicture.getLatitude(), 
-                    pictureUploadRequest.getLongitude(), 
+                    existingPicture.getLongitude(),
+                    existingPicture.getLatitude(),
+                    pictureUploadRequest.getLongitude(),
                     pictureUploadRequest.getLatitude());
             // 距离小于5米，认为是同一地方的图片图片，执行更新操作
             if (distance < 5.0) {
@@ -174,6 +204,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         String address = pictureQueryRequest.getAddress();
         Date startTime = pictureQueryRequest.getStartTime();
         Date endTime = pictureQueryRequest.getEndTime();
+        Integer reviewStatus = pictureQueryRequest.getReviewStatus();
+        Long reviewerId = pictureQueryRequest.getReviewerId();
         String sortField = pictureQueryRequest.getSortField();
         String sortOrder = pictureQueryRequest.getSortOrder();
 
@@ -183,6 +215,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         queryWrapper.likeLeft( ObjUtil.isNotEmpty(address),"address", address);
         queryWrapper.ge(ObjUtil.isNotEmpty(startTime), "createTime", startTime);
         queryWrapper.le(ObjUtil.isNotEmpty(endTime), "createTime", endTime);
+        queryWrapper.eq(ObjUtil.isNotEmpty(reviewStatus), "reviewStatus", reviewStatus);
+        queryWrapper.eq(ObjUtil.isNotEmpty(reviewerId), "reviewerId", reviewerId);
 
         queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
         return queryWrapper;

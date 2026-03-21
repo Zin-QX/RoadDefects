@@ -35,6 +35,8 @@ mybatis-plus:
 # 接口文档配置
 knife4j:
   enable: true
+#    # 访问接口的时候,获取token的地址
+#  tokenUrl: http://ip:port/getToken
   openapi:
     title: "接口文档"
     version: 1.0
@@ -43,4 +45,15 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.zinqx.roaddefectsbackend.controller
-
+          -
+zinqx:
+  jwt:
+    # 设置jwt签名加密时使用的秘钥
+    admin-secret-key: itcast
+    # 设置jwt过期时间
+    admin-ttl: 7200000
+    # 设置前端传递过来的令牌名称
+    admin-token-name: token
+    user-secret-key: itheima
+    user-ttl: 7200000
+    user-token-name: authentication

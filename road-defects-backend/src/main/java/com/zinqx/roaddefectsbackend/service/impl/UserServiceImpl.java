@@ -3,9 +3,13 @@ package com.zinqx.roaddefectsbackend.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zinqx.roaddefectsbackend.common.util.JwtClaimsConstant;
+import com.zinqx.roaddefectsbackend.common.util.JwtProperties;
+import com.zinqx.roaddefectsbackend.common.util.JwtUtil;
 import com.zinqx.roaddefectsbackend.exception.BusinessException;
 import com.zinqx.roaddefectsbackend.exception.ErrorCode;
 import com.zinqx.roaddefectsbackend.mapper.UserMapper;
@@ -15,17 +19,19 @@ import com.zinqx.roaddefectsbackend.model.enums.UserRoleEnum;
 import com.zinqx.roaddefectsbackend.model.vo.LoginUserVO;
 import com.zinqx.roaddefectsbackend.model.vo.UserVO;
 import com.zinqx.roaddefectsbackend.service.UserService;
+import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-
-import static com.zinqx.roaddefectsbackend.constant.UserConstant.USER_LOGIN_STATE;
 
 
 /**
@@ -37,6 +43,9 @@ import static com.zinqx.roaddefectsbackend.constant.UserConstant.USER_LOGIN_STAT
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService {
+
+    @Resource
+    private JwtProperties jwtProperties;
 
     /**
      * 获取加密密码
@@ -97,7 +106,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
+    public String userLogin(String userAccount, String userPassword) {
         // 1. 校验
         if (StrUtil.hasBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
@@ -120,26 +129,43 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             log.info("user login failed, userAccount cannot match userPassword");
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
-        // 3. 记录用户的登录态
-        request.getSession().setAttribute(USER_LOGIN_STATE, user);
-        return this.getLoginUserVO(user);
+        // 3. 生成 JWT token
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(JwtClaimsConstant.USER_ID, user.getId());
+        claims.put(JwtClaimsConstant.USERNAME, user.getUserAccount());
+        claims.put(JwtClaimsConstant.NAME, user.getUserName());
+        String token = JwtUtil.createJWT(
+            jwtProperties.getUserSecretKey(),
+            jwtProperties.getUserTtl(),
+            claims
+        );
+        return token;
     }
 
     @Override
-    public User getLoginUser(HttpServletRequest request) {
-        // 先判断是否已登录
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User currentUser = (User) userObj;
-        if (currentUser == null || currentUser.getId() == null) {
+    public User getUserByToken(String token) {
+        if (StrUtil.isBlank(token)) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
-        // 从数据库查询（追求性能的话可以注释，直接返回上述结果）
-        long userId = currentUser.getId();
-        currentUser = this.getById(userId);
-        if (currentUser == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        try {
+            // 解析 token
+            Claims claims = JwtUtil.parseJWT(jwtProperties.getUserSecretKey(), token);
+            // 获取用户 ID
+            Object userIdObj = claims.get(JwtClaimsConstant.USER_ID);
+            if (userIdObj == null) {
+                throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+            }
+            Long userId = Long.valueOf(userIdObj.toString());
+            // 从数据库查询用户
+            User user = this.getById(userId);
+            if (user == null) {
+                throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+            }
+            return user;
+        } catch (Exception e) {
+            log.error("token 解析失败：{}", e.getMessage());
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "token 解析失败");
         }
-        return currentUser;
     }
 
     @Override
@@ -150,18 +176,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         LoginUserVO loginUserVO = new LoginUserVO();
         BeanUtils.copyProperties(user, loginUserVO);
         return loginUserVO;
-    }
-
-    @Override
-    public boolean userLogout(HttpServletRequest request) {
-        // 先判断是否已登录
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        if (userObj == null) {
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "未登录");
-        }
-        // 移除登录态
-        request.getSession().removeAttribute(USER_LOGIN_STATE);
-        return true;
     }
 
     @Override

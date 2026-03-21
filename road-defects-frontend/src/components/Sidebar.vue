@@ -2,12 +2,9 @@
   <a-layout class="dashboard-layout">
 
     <a-layout-sider
-      width="220"
+      width="200"
       class="sidebar-card"
     >
-      <div class="sidebar-header">
-        <span class="sidebar-title">功能导航</span>
-      </div>
       <a-menu
         v-model:selectedKeys="selectedKeys2"
         mode="inline"
@@ -24,6 +21,12 @@
             <bar-chart-outlined />
           </template>
           道路缺陷统计
+        </a-menu-item>
+        <a-menu-item v-if="isAdmin" key="pictureManage" @click="navigateTo('/admin/pictureManage')">
+          <template #icon>
+            <picture-outlined />
+          </template>
+          图片管理
         </a-menu-item>
         <a-menu-item v-if="isAdmin" key="userManage" @click="navigateTo('/admin/userManage')">
           <template #icon>
@@ -55,7 +58,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useLoginUserStore } from '@/stores/useLoginUserStore';
-import { HomeOutlined, BarChartOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons-vue';
+import { HomeOutlined, BarChartOutlined, NotificationOutlined, UserOutlined, PictureOutlined } from '@ant-design/icons-vue';
 
 const router = useRouter();
 const loginUserStore = useLoginUserStore();
@@ -74,10 +77,10 @@ const navigateTo = (path: string) => {
 <style scoped>
 /* 整体布局背景，使用浅色以突出内部的白色卡片 */
 .dashboard-layout {
-  padding: 12px;
+  padding: 6px;
   background: #f5f7fa;
-  min-height: calc(100vh - 64px - 70px); /* 减去顶部导航栏和页脚的高度 */
-  gap: 12px;
+  min-height: calc(100vh - 48px - 64px); /* 减去顶部导航栏和页脚的高度 */
+  gap: 6px;
   padding-bottom: 6px; /* 额外的底部 padding 确保内容不被页脚遮挡 */
 }
 
@@ -89,14 +92,6 @@ const navigateTo = (path: string) => {
   overflow: hidden; /* 确保内部元素不溢出圆角 */
 }
 
-/* 侧边栏顶部小标题（可选，增加精致感） */
-.sidebar-header {
-  padding: 20px 24px 10px;
-  font-size: 13px;
-  color: #8c8c8c;
-  font-weight: 500;
-  letter-spacing: 1px;
-}
 
 /* 优化菜单样式，去除默认的右侧边框 */
 .custom-menu {
@@ -109,7 +104,7 @@ const navigateTo = (path: string) => {
   border-radius: 8px;
   margin-bottom: 4px !important;
   margin-top: 4px !important;
-  font-size: 18px;
+  font-size: 16px;
   height: 50px;
   line-height: 50px;
   padding-left: 20px !important;

@@ -1,11 +1,13 @@
 package com.zinqx.roaddefectsbackend.aop;
 
+import cn.hutool.core.util.StrUtil;
 import com.zinqx.roaddefectsbackend.annotation.AuthCheck;
 import com.zinqx.roaddefectsbackend.exception.BusinessException;
 import com.zinqx.roaddefectsbackend.exception.ErrorCode;
 import com.zinqx.roaddefectsbackend.model.entity.User;
 import com.zinqx.roaddefectsbackend.model.enums.UserRoleEnum;
 import com.zinqx.roaddefectsbackend.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -17,6 +19,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+@Slf4j
 @Aspect
 @Component
 public class AuthInterceptor {
@@ -35,8 +38,19 @@ public class AuthInterceptor {
         String mustRole = authCheck.mustRole();
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
-        // 当前登录用户
-        User loginUser = userService.getLoginUser(request);
+        
+        // 从请求头获取 token
+        String token = request.getHeader("Authorization");
+        if (StrUtil.isBlank(token)) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "未登录");
+        }
+        // 处理 Bearer 前缀
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        
+        // 通过 token 获取当前登录用户
+        User loginUser = userService.getUserByToken(token);
         UserRoleEnum mustRoleEnum = UserRoleEnum.getEnumByValue(mustRole);
         // 不需要权限，放行
         if (mustRoleEnum == null) {

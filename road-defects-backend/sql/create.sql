@@ -18,8 +18,19 @@ create table if not exists user
     INDEX idx_userName (userName)
     ) comment '用户' collate = utf8mb4_unicode_ci;
 
--- 切换到目标数据库
-USE road_defects;
+-- 创建用户授权信息表
+create table authorization
+(
+    id          bigint auto_increment comment '主键'
+        primary key,
+    userId      bigint       null comment '用户id',
+    identityType varchar(32) null comment '身份类型',
+    openid      varchar(45)  null comment '用户唯一标识',
+    credential  VARCHAR(512)       null comment '密码凭证',
+
+    INDEX idx_userId (userId)
+)
+    comment '用户授权' collate = utf8mb3_bin;
 
 -- 创建 picture 表（含审核相关字段）
 CREATE TABLE picture

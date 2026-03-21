@@ -12,7 +12,7 @@
         <a-button type="primary" html-type="submit">搜索</a-button>
       </a-form-item>
     </a-form>
-    <div style="margin-bottom: 16px" />
+    <div style="margin-bottom: 8px" />
     <!-- 表格 -->
     <a-table
       :columns="columns"
@@ -22,7 +22,13 @@
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'userAvatar'">
-          <a-image :src="record.userAvatar" :width="120" />
+          <img
+            v-if="record.userAvatar"
+            :src="record.userAvatar"
+            class="user-avatar"
+            alt="avatar"
+          />
+          <a-avatar v-else class="user-avatar">{{ record.userName?.charAt(0) ?? '无' }}</a-avatar>
         </template>
         <template v-else-if="column.dataIndex === 'userRole'">
           <div v-if="record.userRole === 'admin'">
@@ -52,34 +58,42 @@ const columns = [
   {
     title: 'id',
     dataIndex: 'id',
+    align: 'center',
   },
   {
     title: '账号',
     dataIndex: 'userAccount',
+    align: 'center',
   },
   {
     title: '用户名',
     dataIndex: 'userName',
+    align: 'center',
   },
   {
     title: '头像',
     dataIndex: 'userAvatar',
+    align: 'center',
   },
   {
     title: '简介',
     dataIndex: 'userProfile',
+    align: 'center',
   },
   {
     title: '用户角色',
     dataIndex: 'userRole',
+    align: 'center',
   },
   {
     title: '创建时间',
     dataIndex: 'createTime',
+    align: 'center',
   },
   {
     title: '操作',
     key: 'action',
+    align: 'center',
   },
 ]
 
@@ -116,6 +130,12 @@ const pagination = computed(() => {
     total: total.value,
     showSizeChanger: true,
     showTotal: (total) => `共 ${total} 条`,
+    showQuickJumper: true,
+    locale: {
+      items_per_page: '条/页',
+      jump_to: '跳至',
+      page: '页',
+    },
   }
 })
 
@@ -154,15 +174,23 @@ const doDelete = async (id: string) => {
 }
 
 :deep(.ant-table-thead th) {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
+  text-align: center;
 }
 
 :deep(.ant-table-tbody td) {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 :deep(.ant-table-pagination) {
-  font-size: 18px;
+  font-size: 16px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 </style>

@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import UserLoginPage from '@/pages/user/UserLoginPage.vue'
 import UserRegisterPage from '@/pages/user/UserRegisterPage.vue'
 import UserManagePage from '@/pages/admin/UserManagePage.vue'
+import PictureManagePage from '@/pages/admin/PictureManagePage.vue'
 import HomePage from '@/pages/HomePage.vue'
 import StatisticsPage from '@/pages/StatisticsPage.vue'
 
@@ -33,6 +34,11 @@ const router = createRouter({
     path: '/admin/userManage',
     name: '用户管理',
     component: UserManagePage,
+  },
+  {
+    path: '/admin/pictureManage',
+    name: '图片管理',
+    component: PictureManagePage,
   },
 
   {
