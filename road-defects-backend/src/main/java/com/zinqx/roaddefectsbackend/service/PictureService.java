@@ -32,8 +32,6 @@ public interface PictureService extends IService<Picture> {
     PictureVO uploadPicture(MultipartFile multipartFile,
                             PictureUploadRequest pictureUploadRequest,
                             User loginUser);
-//    PictureVO uploadPicture(MultipartFile multipartFile,
-//                            PictureUploadRequest pictureUploadRequest);
     /**
      * 填充审核参数
      *

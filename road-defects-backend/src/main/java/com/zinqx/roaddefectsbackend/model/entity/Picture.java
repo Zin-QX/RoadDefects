@@ -47,6 +47,16 @@ public class Picture {
     private String address;
 
     /**
+     * 处理后的图片 url
+     */
+    private String processedUrl;
+
+    /**
+     * 处理结果
+     */
+    private String processedResult;
+
+    /**
      * 图片体积
      */
     private Long picSize;

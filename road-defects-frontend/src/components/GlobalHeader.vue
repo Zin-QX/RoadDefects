@@ -4,7 +4,7 @@
       <RouterLink to="/">
         <div class="title-bar">
           <img class="logo" src="../assets/logo.png" alt="logo" />
-          <div class="title">粤智呼</div>
+          <div class="title">慧眼清途</div>
         </div>
       </RouterLink>
     </a-col>
@@ -68,6 +68,7 @@ const loginUserStore = useLoginUserStore();
 const handleLogout = async () => {
   const res = await userLogoutUsingPost();
   if (res.data.code === 0) {
+    localStorage.removeItem('Authorization');
     loginUserStore.setLoginUser({ userName: '未登录' });
     message.success('退出登录成功');
     router.push('/user/login');

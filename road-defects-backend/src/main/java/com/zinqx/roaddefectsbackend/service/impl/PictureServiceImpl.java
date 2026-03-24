@@ -25,6 +25,8 @@ import com.zinqx.roaddefectsbackend.model.vo.UserVO;
 import com.zinqx.roaddefectsbackend.service.PictureService;
 import com.zinqx.roaddefectsbackend.mapper.PictureMapper;
 import com.zinqx.roaddefectsbackend.service.UserService;
+import com.zinqx.roaddefectsbackend.manager.PythonServiceClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,9 +41,10 @@ import java.util.stream.Collectors;
 
 /**
 * @author 23378
-* @description 针对表【picture(图片)】的数据库操作Service实现
+* @description 针对表【picture(图片)】的数据库操作 Service 实现
 * @createDate 2026-03-11 22:48:13
 */
+@Slf4j
 @Service
 public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     implements PictureService{
@@ -54,36 +57,17 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     @Resource
     private DistanceCalculateOfVincentyUtil vincentyStrategy;
 
-//    @Override
-//    public PictureVO uploadPicture(MultipartFile multipartFile, PictureUploadRequest pictureUploadRequest) {
-//
-//        // 上传图片，得到信息
-//        // 按照用户 id 划分目录
-//        String uploadPathPrefix = String.format("RoadDefects/%s",111L);
-//        UploadPictureResult uploadPictureResult = fileManager.uploadPicture(multipartFile, uploadPathPrefix);
-//        // 构造要入库的图片信息
-//        Picture picture = new Picture();
-//        // 设置经纬度
-//        if (pictureUploadRequest.getLatitude() != null && pictureUploadRequest.getLongitude() != null) {
-//            picture.setLatitude(pictureUploadRequest.getLatitude());
-//            picture.setLongitude(pictureUploadRequest.getLongitude());
-//        }else {
-//            ThrowUtils.throwIf(pictureUploadRequest.getLatitude() == null, ErrorCode.PARAMS_ERROR, "经纬度不能为空");
-//        }
-//        if (pictureUploadRequest.getAddress() != null){
-//            picture.setAddress(pictureUploadRequest.getAddress());
-//        }else {
-//            ThrowUtils.throwIf(true, ErrorCode.PARAMS_ERROR, "地址不能为空");
-//        }
-//        picture.setUrl(uploadPictureResult.getUrl());
-//        picture.setUserId(111L);
-//        picture.setName(uploadPictureResult.getPicName());
-//        picture.setPicSize(uploadPictureResult.getPicSize());
-//        boolean result = this.save(picture);
-//        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败");
-//        return PictureVO.objToVo(picture);
-//    }
+    @Resource
+    private PythonServiceClient pythonServiceClient;
 
+    /**
+     * 上传图片
+     *
+     * @param multipartFile
+     * @param pictureUploadRequest
+     * @param loginUser
+     * @return
+     */
     @Override
     public PictureVO uploadPicture(MultipartFile multipartFile, PictureUploadRequest pictureUploadRequest, User loginUser) {
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
@@ -108,12 +92,12 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
                     existingPicture.getLatitude(),
                     pictureUploadRequest.getLongitude(),
                     pictureUploadRequest.getLatitude());
-            // 距离小于5米，认为是同一地方的图片图片，执行更新操作
+            // 距离小于3米，认为是同一地方的图片图片，执行更新操作
             if (distance < 5.0) {
                 pictureId = existingPicture.getId();
             }else {
                 // 如果不是同一位置
-                ThrowUtils.throwIf(true, ErrorCode.OPERATION_ERROR, "图片上传失败，请在5m范围内上传");
+                ThrowUtils.throwIf(true, ErrorCode.OPERATION_ERROR, "图片上传失败，同一地方请在5m范围内上传");
             }
         }
         // 上传图片，得到信息
@@ -156,15 +140,54 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             existingPicture.setUpdateTime(new Date());
             boolean result = this.updateById(existingPicture);
             ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败");
+            
+            // 调用 Python 接口处理图片
+            if (existingPicture.getId() != null && existingPicture.getUrl() != null) {
+                try {
+                    PythonServiceClient.PythonProcessResult processResult = 
+                            pythonServiceClient.processPicture(existingPicture.getId(), existingPicture.getUrl());
+                    if (processResult != null) {
+                        // 更新处理结果到数据库
+                        existingPicture.setProcessedUrl(processResult.getProcessedUrl());
+                        existingPicture.setProcessedResult(processResult.getProcessedResult());
+                        this.updateById(existingPicture);
+                        // 同步到返回对象
+                        picture = existingPicture;
+                    }
+                } catch (Exception e) {
+                    log.error("调用 Python 图片处理接口失败，pictureId: {}", existingPicture.getId(), e);
+                }
+            }
         } else {
             // 新增图片
             boolean result = this.save(picture);
             ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败");
+            
+            // 调用 Python 接口处理图片
+            if (picture.getId() != null && picture.getUrl() != null) {
+                try {
+                    PythonServiceClient.PythonProcessResult processResult = 
+                            pythonServiceClient.processPicture(picture.getId(), picture.getUrl());
+                    if (processResult != null) {
+                        // 更新处理结果到数据库
+                        picture.setProcessedUrl(processResult.getProcessedUrl());
+                        picture.setProcessedResult(processResult.getProcessedResult());
+                        this.updateById(picture);
+                    }
+                } catch (Exception e) {
+                    log.error("调用 Python 图片处理接口失败，pictureId: {}", picture.getId(), e);
+                }
+            }
         }
         return PictureVO.objToVo(picture);
     }
 
 
+    /**
+     * 填充审核参数
+     * @param picture
+     * @param loginUser
+     */
     @Override
     public void fillReviewParams(Picture picture, User loginUser) {
         if (userService.isAdmin(loginUser)) {
@@ -310,7 +333,3 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
 
 
 }
-
-
-
-

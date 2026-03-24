@@ -11,6 +11,8 @@
             <result property="longitude" column="longitude" />
             <result property="latitude" column="latitude" />
             <result property="address" column="address" />
+            <result property="processedUrl" column="processedUrl" />
+            <result property="processedResult" column="processedResult" />
             <result property="picSize" column="picSize" />
             <result property="userId" column="userId" />
             <result property="createTime" column="createTime" />
@@ -20,6 +22,7 @@
 
     <sql id="Base_Column_List">
         id,url,name,longitude,latitude,address,
+        processedUrl,processedResult,
         picSize,userId,createTime,updateTime,
         isDelete
     </sql>

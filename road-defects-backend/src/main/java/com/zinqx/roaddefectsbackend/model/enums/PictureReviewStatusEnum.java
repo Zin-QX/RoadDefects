@@ -6,8 +6,9 @@ import lombok.Getter;
 @Getter
 public enum PictureReviewStatusEnum {  
     REVIEWING("待审核", 0),  
-    PASS("通过", 1),  
-    REJECT("拒绝", 2);  
+    PASS("道路有异常", 1),
+    NO_ISSUE("道路无异常", 2),
+    REJECT("拒绝通过", 3);
   
     private final String text;  
     private final int value;  

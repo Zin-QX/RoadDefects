@@ -22,7 +22,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/wxuser")
-@Api(tags = "C端用户相关接口")
 @Slf4j
 public class AuthorizationController {
 

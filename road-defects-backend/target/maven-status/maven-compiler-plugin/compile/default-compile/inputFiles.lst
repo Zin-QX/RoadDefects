@@ -4,7 +4,7 @@ D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefects
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\mapper\AuthorizationMapper.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\service\impl\AuthorizationServiceImpl.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\model\dto\user\UserAddRequest.java
-D:\Stage_1\Road-defects\road-defects-backend\src\main\java\generator\service\impl\WxuserServiceImpl.java
+D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\config\PythonServiceProperties.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\manager\CosManager.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\model\dto\user\UserLoginRequest.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\model\enums\UserRoleEnum.java
@@ -14,7 +14,6 @@ D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefects
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\config\CorsConfig.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\aop\AuthInterceptor.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\common\util\HttpClientUtil.java
-D:\Stage_1\Road-defects\road-defects-backend\src\main\java\generator\domain\Wxuser.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\manager\distance\HaversineFormula.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\model\dto\user\UserUpdateRequest.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\exception\GlobalExceptionHandler.java
@@ -36,9 +35,9 @@ D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefects
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\common\ResultUtils.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\service\AuthorizationService.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\common\util\JwtClaimsConstant.java
-D:\Stage_1\Road-defects\road-defects-backend\src\main\java\generator\service\impl\AuthorizationServiceImpl.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\constant\UserConstant.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\config\CosClientConfig.java
+D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\manager\PythonServiceClient.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\common\util\JwtProperties.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\mapper\UserMapper.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\config\JsonConfig.java
@@ -48,15 +47,12 @@ D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefects
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\common\BaseResponse.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\common\DeleteRequest.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\model\vo\PictureVO.java
-D:\Stage_1\Road-defects\road-defects-backend\src\main\java\generator\service\AuthorizationService.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\manager\distance\DistanceStrategy.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\model\vo\AuthorizationVO.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\annotation\AuthCheck.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\model\vo\LoginUserVO.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\model\vo\UserVO.java
-D:\Stage_1\Road-defects\road-defects-backend\src\main\java\generator\service\WxuserService.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\RoadDefectsBackendApplication.java
-D:\Stage_1\Road-defects\road-defects-backend\src\main\java\generator\mapper\WxuserMapper.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\model\dto\user\UserQueryRequest.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\service\impl\UserServiceImpl.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\model\entity\User.java

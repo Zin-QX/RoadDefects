@@ -6,7 +6,7 @@
       <div class="header">
         <div class="logo-container">
           <img class="logo" src="@/assets/logo.png" alt="logo" />
-          <h2 class="title">粤智呼</h2>
+          <h2 class="title">慧眼清途</h2>
         </div>
         <div class="desc">智能道路缺陷检测系统</div>
       </div>
@@ -68,6 +68,7 @@ const loginUserStore = useLoginUserStore()
 const handleSubmit = async (values: any) => {
   const res = await userLoginUsingPost(values)
   if (res.data.code === 0 && res.data.data) {
+    localStorage.setItem('Authorization', res.data.data)
     await loginUserStore.fetchLoginUser()
     message.success('欢迎回来')
     router.push({ path: '/', replace: true })

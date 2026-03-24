@@ -13,7 +13,7 @@ public class PictureReviewRequest implements Serializable {
     private Long id;  
   
     /**  
-     * 状态：0-待审核, 1-通过, 2-拒绝  
+     * 状态：0-待审核, 1-通过, 2-无异常, 3-拒绝
      */  
     private Integer reviewStatus;  
   

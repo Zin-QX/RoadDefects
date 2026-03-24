@@ -42,6 +42,16 @@ public class PictureVO implements Serializable {
      * 地址
      */
     private String address;
+
+    /**
+     * 处理后的图片 url
+     */
+    private String processedUrl;
+
+    /**
+     * 处理结果
+     */
+    private String processedResult;
   
 
     /**  
