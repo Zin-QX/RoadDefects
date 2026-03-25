@@ -148,3 +148,73 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
 
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Model files (usually large)
+*.pt
+*.pth
+*.weights
+*.onnx
+*.engine
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment and secrets
+.env
+*.env
+secrets.yaml
+secrets.json
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Test and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# YOLO specific
+yolo_config/
+runs/
+datasets/
