@@ -16,3 +16,11 @@ export async function loginUsingPost(
     ...(options || {}),
   })
 }
+
+/** wxLogout POST /api/wxuser/logout */
+export async function wxLogoutUsingPost(options?: { [key: string]: any }) {
+  return request<API.BaseResponseBoolean_>('/api/wxuser/logout', {
+    method: 'POST',
+    ...(options || {}),
+  })
+}

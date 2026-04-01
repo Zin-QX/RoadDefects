@@ -13,15 +13,15 @@ const loadPictures = async () => {
       current: 1,
       pageSize: 100, // 获取前 100 条数据
     })
-    
+
     if (res.data.code === 0 && res.data.data?.records) {
       const pictures = res.data.data.records
-      
+
       pictures.forEach((picture) => {
         if (picture.latitude && picture.longitude) {
           // 坐标转换：GCJ-02 转 WGS-84（天地图使用 GCJ-02，Leaflet 使用 WGS-84）
           const wgs84Coord = gcj02towgs84(picture.latitude, picture.longitude)
-          
+
           // 创建标记点，自定义图标锚点使其对准精确位置
           const marker = L.marker([wgs84Coord.lat, wgs84Coord.lng], {
             icon: L.icon({
@@ -55,32 +55,8 @@ const loadPictures = async () => {
               <p style="margin: 4px 0;"><strong>纬度:</strong> ${picture.latitude}</p>
               <p style="margin: 4px 0;"><strong>大小:</strong> ${formatFileSize(picture.picSize)}</p>
               <p style="margin: 4px 0;"><strong>上传时间:</strong> ${formatDate(picture.createTime)}</p>
-              <p style="margin: 4px 0;"><strong>处理结果:</strong> ${picture.processedResult || '未处理'}</p>
+              <p style="margin: 4px 0;"><strong>处理结果:</strong> ${parseProcessedResult(picture.processedResult)}</p>
           `
-
-          // 审核状态
-          if (picture.reviewStatus !== undefined) {
-            const statusMap: Record<number, { text: string; color: string }> = {
-              0: { text: '待审核', color: 'orange' },
-              1: { text: '道路有异常', color: 'green' },
-              2: { text: '道路无异常', color: 'blue' },
-              3: { text: '拒绝通过', color: 'red' },
-            }
-            const status = statusMap[picture.reviewStatus]
-            if (status) {
-              popupContent += `
-                <p style="margin: 4px 0;">
-                  <strong>审核状态:</strong> 
-                  <span style="color: ${status.color};">${status.text}</span>
-                </p>
-              `
-            }
-          }
-
-          // 审核信息
-          if (picture.reviewMessage) {
-            popupContent += `<p style="margin: 4px 0;"><strong>审核信息:</strong> ${picture.reviewMessage}</p>`
-          }
 
           popupContent += `</div></div>`
 
@@ -90,9 +66,9 @@ const loadPictures = async () => {
       })
 
       // 如果有数据，将地图中心设置到第一个点
-      if (pictures.length > 0 && pictures[0].latitude && pictures[0].longitude) {
-        map?.setView([pictures[0].latitude, pictures[0].longitude], 12)
-      }
+      // if (pictures.length > 0 && pictures[0].latitude && pictures[0].longitude) {
+      //   map?.setView([pictures[0].latitude, pictures[0].longitude], 12)
+      // }
     }
   } catch (error) {
     console.error('加载图片数据失败:', error)
@@ -124,11 +100,34 @@ const formatDate = (dateStr?: string): string => {
   }
 }
 
+// 解析处理结果
+const parseProcessedResult = (result: string | string[] | undefined): string => {
+  if (!result) return '未处理'
+  
+  if (typeof result === 'string') {
+    try {
+      const parsed = JSON.parse(result)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.join('；')
+      }
+      return result
+    } catch (e) {
+      return result
+    }
+  }
+  
+  if (Array.isArray(result) && result.length > 0) {
+    return result.join('；')
+  }
+  
+  return '未处理'
+}
+
 // GCJ-02 转 WGS-84 坐标转换函数
 const gcj02towgs84 = (lat: number, lng: number) => {
   const a = 6378245.0
   const ee = 0.00669342162296594323
-  
+
   const transformLat = (x: number, y: number) => {
     let ret = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x))
     ret += (20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0
@@ -136,7 +135,7 @@ const gcj02towgs84 = (lat: number, lng: number) => {
     ret += (160.0 * Math.sin(y / 12.0 * Math.PI) + 320 * Math.sin(y * Math.PI / 30.0)) * 2.0 / 3.0
     return ret
   }
-  
+
   const transformLon = (x: number, y: number) => {
     let ret = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x))
     ret += (20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0
@@ -144,7 +143,7 @@ const gcj02towgs84 = (lat: number, lng: number) => {
     ret += (150.0 * Math.sin(x / 12.0 * Math.PI) + 300.0 * Math.sin(x / 30.0 * Math.PI)) * 2.0 / 3.0
     return ret
   }
-  
+
   let dLat = transformLat(lng - 105.0, lat - 35.0)
   let dLon = transformLon(lng - 105.0, lat - 35.0)
   const radLat = lat / 180.0 * Math.PI
@@ -153,10 +152,10 @@ const gcj02towgs84 = (lat: number, lng: number) => {
   const sqrtMagic = Math.sqrt(magic)
   dLat = (dLat * 180.0) / ((a * (1 - ee)) / (magic * sqrtMagic) * Math.PI)
   dLon = (dLon * 180.0) / (a / sqrtMagic * Math.cos(radLat) * Math.PI)
-  
+
   const mgLat = lat + dLat
   const mgLon = lng + dLon
-  
+
   return {
     lat: lat * 2 - mgLat,
     lng: lng * 2 - mgLon

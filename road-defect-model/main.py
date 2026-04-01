@@ -68,9 +68,10 @@ async def detect_defects(request: DetectionRequest):
             for det in detections:
                 class_cn = CLASS_ID_TO_CN.get(det['class_id'], det['class'])
                 result_parts.append(f"{class_cn}(置信度:{det['confidence']:.2%})")
-            processed_result = "检测到: " + ", ".join(result_parts)
+            import json
+            processed_result = json.dumps(result_parts, ensure_ascii=False)
         else:
-            processed_result = "未检测到道路缺陷"
+            processed_result = "[]"
         
         return DetectionResult(
             id=request.id,

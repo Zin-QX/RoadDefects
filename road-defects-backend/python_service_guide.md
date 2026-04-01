@@ -38,7 +38,7 @@ Python 接口直接返回处理结果，不需要 `code` 和 `data` 包装。
 {
   "id": 2034196409431478300,
   "processedUrl": "https://zinqx-1391992760.cos.ap-guangzhou.myqcloud.com/road-defects/ef01d1671c204a8ead813a9f24a39dff.jpg",
-  "processedResult": "共检测到 2 个缺陷：Patch-Pothole(置信度:45.73%), Manhole(置信度:38.75%)"
+  "processedResult": "[\"修补裂缝(置信度:76.64%)\", \"修补网裂(置信度:39.26%)\"]"
 }
 ```
 
@@ -48,7 +48,9 @@ Python 接口直接返回处理结果，不需要 `code` 和 `data` 包装。
 |--------|------|------|
 | id | Long | 图片 ID（可选，用于日志记录） |
 | processedUrl | String | **必填**，处理后的图片 URL（标注了缺陷位置的图片） |
-| processedResult | String | **必填**，处理结果描述文本 |
+| processedResult | String | **必填**，处理结果描述文本，**JSON 字符串格式的列表**，如：`["缺陷1(置信度:xx%)", "缺陷2(置信度:xx%)"]` |
+
+**注意**：`processedResult` 字段必须是 JSON 字符串格式的列表，Java 后端会将其解析为 `List<String>` 返回给前端。
 
 ## Python 服务实现建议
 

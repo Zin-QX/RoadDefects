@@ -2,6 +2,36 @@
 /* eslint-disable */
 import request from '@/request'
 
+/** getApprovedTrend POST /api/picture/approved/trend */
+export async function getApprovedTrendUsingPost(
+  body: API.UploadTrendRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponseApprovedTrendVO_>('/api/picture/approved/trend', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
+/** getDefectStatistics POST /api/picture/defect/statistics */
+export async function getDefectStatisticsUsingPost(
+  body: API.DefectStatisticsRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponseDefectStatisticsVO_>('/api/picture/defect/statistics', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
 /** deletePicture POST /api/picture/delete */
 export async function deletePictureUsingPost(
   body: API.DeleteRequest,
@@ -62,6 +92,14 @@ export async function doPictureReviewUsingPost(
   })
 }
 
+/** getStatistics GET /api/picture/statistics */
+export async function getStatisticsUsingGet(options?: { [key: string]: any }) {
+  return request<API.BaseResponseStatisticsVO_>('/api/picture/statistics', {
+    method: 'GET',
+    ...(options || {}),
+  })
+}
+
 /** uploadPicture POST /api/picture/upload */
 export async function uploadPictureUsingPost(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
@@ -99,6 +137,21 @@ export async function uploadPictureUsingPost(
     },
     data: formData,
     requestType: 'form',
+    ...(options || {}),
+  })
+}
+
+/** getUploadTrend POST /api/picture/upload/trend */
+export async function getUploadTrendUsingPost(
+  body: API.UploadTrendRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponseUploadTrendVO_>('/api/picture/upload/trend', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
     ...(options || {}),
   })
 }

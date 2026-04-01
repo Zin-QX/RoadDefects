@@ -48,6 +48,18 @@
         <template v-else-if="column.dataIndex === 'picSize'">
           {{ formatFileSize(record.picSize) }}
         </template>
+        <template v-else-if="column.dataIndex === 'processedResult'">
+          <template v-if="record.processedResult">
+            <span v-if="typeof record.processedResult === 'string'">
+              {{ parseProcessedResult(record.processedResult) }}
+            </span>
+            <span v-else-if="Array.isArray(record.processedResult) && record.processedResult.length > 0">
+              {{ record.processedResult.join('；') }}
+            </span>
+            <span v-else>-</span>
+          </template>
+          <span v-else>-</span>
+        </template>
         <template v-else-if="column.dataIndex === 'createTime' || column.dataIndex === 'updateTime' || column.dataIndex === 'reviewTime'">
           <a-tooltip :title="dayjs(record[column.dataIndex]).format('YYYY-MM-DD HH:mm:ss')">
             <span class="ellipsis-text">{{ dayjs(record[column.dataIndex]).format('YYYY-MM-DD') }}</span>
@@ -163,7 +175,7 @@ const columns = [
   {
     title: '处理结果',
     dataIndex: 'processedResult',
-    width: 150,
+    width: 250,
     ellipsis: true,
     align: 'center',
   },
@@ -340,6 +352,18 @@ const formatFileSize = (bytes?: number) => {
   if (bytes < 1024) return bytes + ' B'
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB'
   return (bytes / (1024 * 1024)).toFixed(2) + ' MB'
+}
+
+const parseProcessedResult = (result: string) => {
+  try {
+    const parsed = JSON.parse(result)
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed.join('；')
+    }
+    return result
+  } catch (e) {
+    return result
+  }
 }
 </script>
 

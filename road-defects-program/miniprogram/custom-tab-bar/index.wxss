@@ -1,0 +1,13 @@
+.t-tab-bar {
+  padding-bottom: 0 !important;
+  padding-top: 0 !important;
+}
+
+.t-tab-bar--safe {
+  padding-bottom: constant(safe-area-inset-bottom) !important;
+  padding-bottom: env(safe-area-inset-bottom) !important;
+}
+
+.t-tab-bar-item {
+  margin: 8rpx 0 !important;
+}

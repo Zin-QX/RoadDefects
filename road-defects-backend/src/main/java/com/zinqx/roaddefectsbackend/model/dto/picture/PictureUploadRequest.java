@@ -14,7 +14,7 @@ public class PictureUploadRequest implements Serializable {
     private Long id;
 
     /**
-     * 经度（根据经纬度来确认是否为同一个地方上传）
+     * 经度
      */
     private Double longitude;
 

@@ -14,10 +14,16 @@ import com.zinqx.roaddefectsbackend.model.dto.picture.PictureQueryRequest;
 import com.zinqx.roaddefectsbackend.model.dto.picture.PictureReviewRequest;
 import com.zinqx.roaddefectsbackend.model.dto.picture.PictureUpdateRequest;
 import com.zinqx.roaddefectsbackend.model.dto.picture.PictureUploadRequest;
+import com.zinqx.roaddefectsbackend.model.dto.picture.UploadTrendRequest;
+import com.zinqx.roaddefectsbackend.model.dto.picture.DefectStatisticsRequest;
 import com.zinqx.roaddefectsbackend.model.entity.Picture;
 import com.zinqx.roaddefectsbackend.model.entity.User;
 import com.zinqx.roaddefectsbackend.model.enums.PictureReviewStatusEnum;
 import com.zinqx.roaddefectsbackend.model.vo.PictureVO;
+import com.zinqx.roaddefectsbackend.model.vo.ApprovedTrendVO;
+import com.zinqx.roaddefectsbackend.model.vo.DefectStatisticsVO;
+import com.zinqx.roaddefectsbackend.model.vo.StatisticsVO;
+import com.zinqx.roaddefectsbackend.model.vo.UploadTrendVO;
 import com.zinqx.roaddefectsbackend.service.PictureService;
 import com.zinqx.roaddefectsbackend.service.UserService;
 import io.swagger.annotations.Api;
@@ -135,6 +141,80 @@ public class PictureController {
         User loginUser = userService.getUserByToken(token);
         pictureService.doPictureReview(pictureReviewRequest, loginUser);
         return ResultUtils.success(true);
+    }
+
+    /**
+     * 获取统计数据
+     */
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @GetMapping("/statistics")
+    public BaseResponse<StatisticsVO> getStatistics() {
+        StatisticsVO statisticsVO = pictureService.getStatistics();
+        return ResultUtils.success(statisticsVO);
+    }
+
+    /**
+     * 获取上传趋势
+     */
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @PostMapping("/upload/trend")
+    public BaseResponse<UploadTrendVO> getUploadTrend(@RequestBody(required = false) UploadTrendRequest uploadTrendRequest) {
+        if (uploadTrendRequest == null) {
+            uploadTrendRequest = new UploadTrendRequest();
+        }
+        UploadTrendVO uploadTrendVO = pictureService.getUploadTrend(uploadTrendRequest);
+        return ResultUtils.success(uploadTrendVO);
+    }
+
+    /**
+     * 获取审核通过趋势
+     */
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @PostMapping("/approved/trend")
+    public BaseResponse<ApprovedTrendVO> getApprovedTrend(@RequestBody(required = false) UploadTrendRequest uploadTrendRequest) {
+        if (uploadTrendRequest == null) {
+            uploadTrendRequest = new UploadTrendRequest();
+        }
+        ApprovedTrendVO approvedTrendVO = pictureService.getApprovedTrend(uploadTrendRequest);
+        return ResultUtils.success(approvedTrendVO);
+    }
+
+    /**
+     * 获取缺陷统计数据
+     */
+    @PostMapping("/defect/statistics")
+    public BaseResponse<DefectStatisticsVO> getDefectStatistics(@RequestBody DefectStatisticsRequest defectStatisticsRequest) {
+        if (defectStatisticsRequest == null) {
+            defectStatisticsRequest = new DefectStatisticsRequest();
+        }
+        DefectStatisticsVO defectStatisticsVO = pictureService.getDefectStatistics(defectStatisticsRequest);
+        return ResultUtils.success(defectStatisticsVO);
+    }
+
+    /**
+     * 分页获取当前用户上传的图片
+     */
+    @PostMapping("/my/list/page/vo")
+    public BaseResponse<Page<PictureVO>> getMyPictureVOByPage(@RequestBody(required = false) PictureQueryRequest pictureQueryRequest,
+                                                              HttpServletRequest request,
+                                                              @RequestHeader("Authorization") String token) {
+        // 处理 Bearer 前缀
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        // 通过 token 获取用户
+        User loginUser = userService.getUserByToken(token);
+        if (loginUser == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "用户未登录");
+        }
+        
+        if (pictureQueryRequest == null) {
+            pictureQueryRequest = new PictureQueryRequest();
+        }
+        
+        // 获取当前用户上传的图片
+        Page<PictureVO> pictureVOPage = pictureService.getMyPictureVOPage(pictureQueryRequest, loginUser, request);
+        return ResultUtils.success(pictureVOPage);
     }
 
 

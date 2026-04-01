@@ -50,5 +50,15 @@ public class AuthorizationController {
 
         return ResultUtils.success(authorizationVO);
     }
+
+    /**
+     * 微信用户退出登录
+     */
+    @PostMapping("/logout")
+    public BaseResponse<Boolean> wxLogout() {
+        // JWT 无状态，不需要服务端操作，客户端清除 token 即可
+        // 这里返回成功，提示客户端清除 token
+        return ResultUtils.success(true);
+    }
 }
 

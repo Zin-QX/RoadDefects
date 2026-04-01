@@ -49,9 +49,9 @@ public class PictureVO implements Serializable {
     private String processedUrl;
 
     /**
-     * 处理结果
+     * 处理结果（列表形式）
      */
-    private String processedResult;
+    private List<String> processedResult;
   
 
     /**  
@@ -73,6 +73,26 @@ public class PictureVO implements Serializable {
      * 更新时间  
      */  
     private Date updateTime;  
+
+    /**
+     * 审核状态：0-待审核；1-道路有异常；2-道路无异常；3-拒绝通过
+     */
+    private Integer reviewStatus;
+
+    /**
+     * 审核信息
+     */
+    private String reviewMessage;
+
+    /**
+     * 审核人 id
+     */
+    private Long reviewerId;
+
+    /**
+     * 审核时间
+     */
+    private Date reviewTime;
   
     /**  
      * 创建用户信息  
@@ -89,8 +109,10 @@ public class PictureVO implements Serializable {
         }  
         Picture picture = new Picture();  
         BeanUtils.copyProperties(pictureVO, picture);
-        // 类型不同，需要转换  
-//        picture.setTags(JSONUtil.toJsonStr(pictureVO.getTags()));
+        // 将 List<String> 类型的 processedResult 转换为 String
+        if (pictureVO.getProcessedResult() != null) {
+            picture.setProcessedResult(JSONUtil.toJsonStr(pictureVO.getProcessedResult()));
+        }
         return picture;  
     }  
   
@@ -103,6 +125,10 @@ public class PictureVO implements Serializable {
         }  
         PictureVO pictureVO = new PictureVO();  
         BeanUtils.copyProperties(picture, pictureVO);
+        // 将 String 类型的 processedResult 转换为 List<String>
+        if (picture.getProcessedResult() != null && !picture.getProcessedResult().isEmpty()) {
+            pictureVO.setProcessedResult(JSONUtil.toList(picture.getProcessedResult(), String.class));
+        }
         return pictureVO;  
     }  
 }

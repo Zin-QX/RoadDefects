@@ -1,4 +1,9 @@
 declare namespace API {
+  type ApprovedTrendVO = {
+    approvedCounts?: number[]
+    dates?: string[]
+  }
+
   type AuthorizationLoginDTO = {
     code?: string
   }
@@ -7,6 +12,12 @@ declare namespace API {
     id?: number
     openid?: string
     token?: string
+  }
+
+  type BaseResponseApprovedTrendVO_ = {
+    code?: number
+    data?: ApprovedTrendVO
+    message?: string
   }
 
   type BaseResponseAuthorizationVO_ = {
@@ -18,6 +29,12 @@ declare namespace API {
   type BaseResponseBoolean_ = {
     code?: number
     data?: boolean
+    message?: string
+  }
+
+  type BaseResponseDefectStatisticsVO_ = {
+    code?: number
+    data?: DefectStatisticsVO
     message?: string
   }
 
@@ -57,9 +74,21 @@ declare namespace API {
     message?: string
   }
 
+  type BaseResponseStatisticsVO_ = {
+    code?: number
+    data?: StatisticsVO
+    message?: string
+  }
+
   type BaseResponseString_ = {
     code?: number
     data?: string
+    message?: string
+  }
+
+  type BaseResponseUploadTrendVO_ = {
+    code?: number
+    data?: UploadTrendVO
     message?: string
   }
 
@@ -73,6 +102,23 @@ declare namespace API {
     code?: number
     data?: UserVO
     message?: string
+  }
+
+  type DefectItem = {
+    count?: number
+    defectType?: string
+    percentage?: number
+  }
+
+  type DefectStatisticsRequest = {
+    city?: string
+    district?: string
+    province?: string
+  }
+
+  type DefectStatisticsVO = {
+    defects?: DefectItem[]
+    totalCount?: number
   }
 
   type DeleteRequest = {
@@ -250,7 +296,7 @@ declare namespace API {
     longitude?: number
     name?: string
     picSize?: number
-    processedResult?: string
+    processedResult?: string[]
     processedUrl?: string
     updateTime?: string
     url?: string
@@ -258,11 +304,33 @@ declare namespace API {
     userId?: number
   }
 
+  type StatisticsVO = {
+    activeUsers?: number
+    activeUsersChange?: number
+    pendingReview?: number
+    pendingReviewChange?: number
+    todayUploads?: number
+    todayUploadsChange?: number
+    totalUploads?: number
+    totalUploadsChange?: number
+  }
+
   type uploadPictureUsingPOSTParams = {
     address?: string
     id?: number
     latitude?: number
     longitude?: number
+  }
+
+  type UploadTrendRequest = {
+    dateRange?: string
+    endDate?: string
+    startDate?: string
+  }
+
+  type UploadTrendVO = {
+    dates?: string[]
+    uploadCounts?: number[]
   }
 
   type User = {

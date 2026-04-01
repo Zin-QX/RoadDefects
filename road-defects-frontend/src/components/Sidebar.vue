@@ -16,11 +16,17 @@
           </template>
           主页
         </a-menu-item>
-        <a-menu-item key="statistics" @click="navigateTo('/statistics')">
+        <a-menu-item v-if="isAdmin" key="statistics" @click="navigateTo('/admin/statistics')">
           <template #icon>
             <bar-chart-outlined />
           </template>
-          道路缺陷统计
+          控制台
+        </a-menu-item>
+        <a-menu-item key="roadData" @click="navigateTo('/roadData')">
+          <template #icon>
+            <environment-outlined />
+          </template>
+          道路数据
         </a-menu-item>
         <a-menu-item v-if="isAdmin" key="pictureManage" @click="navigateTo('/admin/pictureManage')">
           <template #icon>
@@ -55,12 +61,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useLoginUserStore } from '@/stores/useLoginUserStore';
-import { HomeOutlined, BarChartOutlined, NotificationOutlined, UserOutlined, PictureOutlined } from '@ant-design/icons-vue';
+import { HomeOutlined, BarChartOutlined, NotificationOutlined, UserOutlined, PictureOutlined, EnvironmentOutlined } from '@ant-design/icons-vue';
 
 const router = useRouter();
+const route = useRoute();
 const loginUserStore = useLoginUserStore();
 
 const selectedKeys2 = ref<string[]>(['home']);
@@ -68,6 +75,28 @@ const selectedKeys2 = ref<string[]>(['home']);
 const isAdmin = computed(() => {
   return loginUserStore.loginUser?.userRole === 'admin';
 });
+
+// 根据当前路由更新菜单高亮
+const updateSelectedKeys = () => {
+  const path = route.path;
+  
+  if (path === '/') {
+    selectedKeys2.value = ['home'];
+  } else if (path === '/admin/statistics') {
+    selectedKeys2.value = ['statistics'];
+  } else if (path === '/roadData') {
+    selectedKeys2.value = ['roadData'];
+  } else if (path === '/admin/pictureManage') {
+    selectedKeys2.value = ['pictureManage'];
+  } else if (path === '/admin/userManage') {
+    selectedKeys2.value = ['userManage'];
+  } else if (path === '/about') {
+    selectedKeys2.value = ['about'];
+  }
+};
+
+// 监听路由变化，自动更新菜单高亮
+watch(() => route.path, updateSelectedKeys, { immediate: true });
 
 const navigateTo = (path: string) => {
   router.push(path);

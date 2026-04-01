@@ -67,11 +67,14 @@ public class AuthorizationServiceImpl extends ServiceImpl<AuthorizationMapper, A
         queryWrapper.eq("openid", openid);
         Authorization authorization = this.baseMapper.selectOne(queryWrapper);
         if (authorization == null){
-            // 新用户，创建用户账号
+            // 新用户，生成10位随机ID
+            String randomId = String.valueOf(System.currentTimeMillis() % 10000000000L);
+            
+            // 创建用户账号
             User user = new User();
-            user.setUserAccount("wx_" + openid);  // 使用微信 openid 作为账号
-            user.setUserPassword("wx_default_password");  // 默认密码（实际使用中可能需要特殊处理）
-            user.setUserName("微信用户_" + openid.substring(0, Math.min(8, openid.length())));
+            user.setUserAccount("wx_" + randomId);  // 账号：wx_ + 10位ID
+            user.setUserPassword(userService.getEncryptPassword(openid));  // 密码：加密后的openid
+            user.setUserName("微信用户_" + randomId);  // 用户名：微信用户_ + 10位ID
             user.setUserAvatar("");
             user.setUserProfile("");
             user.setUserRole(UserRoleEnum.USER.getValue());

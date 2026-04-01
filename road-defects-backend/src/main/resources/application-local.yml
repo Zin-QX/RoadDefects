@@ -9,21 +9,21 @@ cos:
 
 zinqx:
   wechat:
-    #微信公众号
+    #微信
     appid: wx3967aa095eb5aea2
     #微信公众号密钥
     secret: b5c9013ad9fb7deb3d566d43b43c0a84
-    #微信支付
-    mchid: 1561414331
-    #商户证书序列号
-    mchSerialNo: 4B3B3DC35414AD50B1B755BAF8DE9CC7CF407606
-    #商户私钥文件路径
-    privateKeyFilePath: D:\apiclient_key.pem
-    #微信支付V3密钥
-    apiV3Key: CZBK51236435wxpay435434323FFDuv3
-    #微信支付证书
-    weChatPayCertFilePath: D:\wechatpay_166D96F876F45C7D07CE98952A96EC980368ACFC.pem
-    #微信回调地址
-    notifyUrl: https://73089ca.r3.cpolar.cn/notify/paySuccess
-    #微信退款回调地址
-    refundNotifyUrl: https://73089ca.r3.cpolar.cn/notify/refundSuccess
+#    #微信支付
+#    mchid: 1561414331
+#    #商户证书序列号
+#    mchSerialNo: 4B3B3DC35414AD50B1B755BAF8DE9CC7CF407606
+#    #商户私钥文件路径
+#    privateKeyFilePath: D:\apiclient_key.pem
+#    #微信支付V3密钥
+#    apiV3Key: CZBK51236435wxpay435434323FFDuv3
+#    #微信支付证书
+#    weChatPayCertFilePath: D:\wechatpay_166D96F876F45C7D07CE98952A96EC980368ACFC.pem
+#    #微信回调地址
+#    notifyUrl: https://73089ca.r3.cpolar.cn/notify/paySuccess
+#    #微信退款回调地址
+#    refundNotifyUrl: https://73089ca.r3.cpolar.cn/notify/refundSuccess

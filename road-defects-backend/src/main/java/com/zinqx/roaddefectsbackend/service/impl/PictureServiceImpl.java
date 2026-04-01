@@ -3,6 +3,7 @@ package com.zinqx.roaddefectsbackend.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -16,11 +17,17 @@ import com.zinqx.roaddefectsbackend.model.dto.file.UploadPictureResult;
 import com.zinqx.roaddefectsbackend.model.dto.picture.PictureQueryRequest;
 import com.zinqx.roaddefectsbackend.model.dto.picture.PictureReviewRequest;
 import com.zinqx.roaddefectsbackend.model.dto.picture.PictureUploadRequest;
+import com.zinqx.roaddefectsbackend.model.dto.picture.UploadTrendRequest;
+import com.zinqx.roaddefectsbackend.model.dto.picture.DefectStatisticsRequest;
 import com.zinqx.roaddefectsbackend.model.entity.Picture;
 import com.zinqx.roaddefectsbackend.model.entity.User;
 import com.zinqx.roaddefectsbackend.model.enums.PictureReviewStatusEnum;
 import com.zinqx.roaddefectsbackend.model.enums.UserRoleEnum;
 import com.zinqx.roaddefectsbackend.model.vo.PictureVO;
+import com.zinqx.roaddefectsbackend.model.vo.ApprovedTrendVO;
+import com.zinqx.roaddefectsbackend.model.vo.DefectStatisticsVO;
+import com.zinqx.roaddefectsbackend.model.vo.StatisticsVO;
+import com.zinqx.roaddefectsbackend.model.vo.UploadTrendVO;
 import com.zinqx.roaddefectsbackend.model.vo.UserVO;
 import com.zinqx.roaddefectsbackend.service.PictureService;
 import com.zinqx.roaddefectsbackend.mapper.PictureMapper;
@@ -33,7 +40,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -235,7 +246,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 查询条件
         queryWrapper.eq(ObjUtil.isNotEmpty(id), "id", id);
         queryWrapper.eq(ObjUtil.isNotEmpty(userId), "userId", userId);
-        queryWrapper.likeLeft( ObjUtil.isNotEmpty(address),"address", address);
+        queryWrapper.likeRight( ObjUtil.isNotEmpty(address),"address", address);
         queryWrapper.ge(ObjUtil.isNotEmpty(startTime), "createTime", startTime);
         queryWrapper.le(ObjUtil.isNotEmpty(endTime), "createTime", endTime);
         queryWrapper.eq(ObjUtil.isNotEmpty(reviewStatus), "reviewStatus", reviewStatus);
@@ -329,6 +340,401 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         updatePicture.setReviewTime(new Date());
         boolean result = this.updateById(updatePicture);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+    }
+
+    @Override
+    public StatisticsVO getStatistics() {
+        // 获取今日开始和结束时间
+        java.util.Calendar todayStart = java.util.Calendar.getInstance();
+        todayStart.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        todayStart.set(java.util.Calendar.MINUTE, 0);
+        todayStart.set(java.util.Calendar.SECOND, 0);
+        todayStart.set(java.util.Calendar.MILLISECOND, 0);
+        
+        java.util.Calendar todayEnd = java.util.Calendar.getInstance();
+        todayEnd.set(java.util.Calendar.HOUR_OF_DAY, 23);
+        todayEnd.set(java.util.Calendar.MINUTE, 59);
+        todayEnd.set(java.util.Calendar.SECOND, 59);
+        todayEnd.set(java.util.Calendar.MILLISECOND, 999);
+        
+        // 获取昨日开始和结束时间
+        java.util.Calendar yesterdayStart = java.util.Calendar.getInstance();
+        yesterdayStart.add(java.util.Calendar.DAY_OF_MONTH, -1);
+        yesterdayStart.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        yesterdayStart.set(java.util.Calendar.MINUTE, 0);
+        yesterdayStart.set(java.util.Calendar.SECOND, 0);
+        yesterdayStart.set(java.util.Calendar.MILLISECOND, 0);
+        
+        java.util.Calendar yesterdayEnd = java.util.Calendar.getInstance();
+        yesterdayEnd.add(java.util.Calendar.DAY_OF_MONTH, -1);
+        yesterdayEnd.set(java.util.Calendar.HOUR_OF_DAY, 23);
+        yesterdayEnd.set(java.util.Calendar.MINUTE, 59);
+        yesterdayEnd.set(java.util.Calendar.SECOND, 59);
+        yesterdayEnd.set(java.util.Calendar.MILLISECOND, 999);
+        
+        // 1. 今日上传数
+        long todayUploads = this.lambdaQuery()
+                .ge(Picture::getCreateTime, todayStart.getTime())
+                .le(Picture::getCreateTime, todayEnd.getTime())
+                .count();
+        
+        // 2. 昨日上传数
+        long yesterdayUploads = this.lambdaQuery()
+                .ge(Picture::getCreateTime, yesterdayStart.getTime())
+                .le(Picture::getCreateTime, yesterdayEnd.getTime())
+                .count();
+        
+        // 3. 总上传数
+        long totalUploads = this.count();
+        
+        // 4. 活跃用户数（今日上传过图片的用户数）
+        long activeUsers = this.lambdaQuery()
+                .ge(Picture::getCreateTime, todayStart.getTime())
+                .le(Picture::getCreateTime, todayEnd.getTime())
+                .select(Picture::getUserId)
+                .groupBy(Picture::getUserId)
+                .list()
+                .size();
+        
+        // 5. 昨日活跃用户数
+        long yesterdayActiveUsers = this.lambdaQuery()
+                .ge(Picture::getCreateTime, yesterdayStart.getTime())
+                .le(Picture::getCreateTime, yesterdayEnd.getTime())
+                .select(Picture::getUserId)
+                .groupBy(Picture::getUserId)
+                .list()
+                .size();
+        
+        // 6. 待审核数量
+        long pendingReview = this.lambdaQuery()
+                .eq(Picture::getReviewStatus, PictureReviewStatusEnum.REVIEWING.getValue())
+                .count();
+        
+        // 7. 昨日待审核数量（用于计算变化）
+        // 这里简化处理，使用当前待审核与昨日上传数的对比
+        long yesterdayPending = this.lambdaQuery()
+                .ge(Picture::getCreateTime, yesterdayStart.getTime())
+                .le(Picture::getCreateTime, yesterdayEnd.getTime())
+                .eq(Picture::getReviewStatus, PictureReviewStatusEnum.REVIEWING.getValue())
+                .count();
+        
+        // 计算变化百分比
+        double todayUploadsChange = calculateChangePercent(todayUploads, yesterdayUploads);
+        double totalUploadsChange = calculateChangePercent(totalUploads, totalUploads - todayUploads);
+        double activeUsersChange = calculateChangePercent(activeUsers, yesterdayActiveUsers);
+        double pendingReviewChange = calculateChangePercent(pendingReview, yesterdayPending);
+        
+        return StatisticsVO.builder()
+                .todayUploads((int) todayUploads)
+                .todayUploadsChange(todayUploadsChange)
+                .totalUploads((int) totalUploads)
+                .totalUploadsChange(totalUploadsChange)
+                .activeUsers((int) activeUsers)
+                .activeUsersChange(activeUsersChange)
+                .pendingReview((int) pendingReview)
+                .pendingReviewChange(pendingReviewChange)
+                .build();
+    }
+    
+    private double calculateChangePercent(long current, long previous) {
+        if (previous == 0) {
+            return current > 0 ? 100.0 : 0.0;
+        }
+        return Math.round((double) (current - previous) / previous * 1000.0) / 10.0;
+    }
+
+    @Override
+    public UploadTrendVO getUploadTrend(UploadTrendRequest uploadTrendRequest) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat displaySdf = new SimpleDateFormat("yyyy-M-d");
+        
+        Calendar startCal = Calendar.getInstance();
+        Calendar endCal = Calendar.getInstance();
+        
+        // 设置结束日期为今天的最后一刻
+        endCal.set(Calendar.HOUR_OF_DAY, 23);
+        endCal.set(Calendar.MINUTE, 59);
+        endCal.set(Calendar.SECOND, 59);
+        endCal.set(Calendar.MILLISECOND, 999);
+        
+        // 根据参数确定日期范围
+        String dateRange = uploadTrendRequest.getDateRange();
+        String startDateStr = uploadTrendRequest.getStartDate();
+        String endDateStr = uploadTrendRequest.getEndDate();
+        
+        if (StrUtil.isNotEmpty(startDateStr) && StrUtil.isNotEmpty(endDateStr)) {
+            // 自定义日期范围
+            try {
+                startCal.setTime(sdf.parse(startDateStr));
+                endCal.setTime(sdf.parse(endDateStr));
+                endCal.set(Calendar.HOUR_OF_DAY, 23);
+                endCal.set(Calendar.MINUTE, 59);
+                endCal.set(Calendar.SECOND, 59);
+                endCal.set(Calendar.MILLISECOND, 999);
+            } catch (Exception e) {
+                log.error("日期解析失败", e);
+            }
+        } else {
+            // 预设日期范围
+            if ("30days".equals(dateRange)) {
+                startCal.add(Calendar.DAY_OF_MONTH, -29);
+            } else if ("15days".equals(dateRange)) {
+                startCal.add(Calendar.DAY_OF_MONTH, -14);
+            } else if ("7days".equals(dateRange)) {
+                startCal.add(Calendar.DAY_OF_MONTH, -6);
+            } else {
+                // 默认本月
+                startCal.set(Calendar.DAY_OF_MONTH, 1);
+            }
+            startCal.set(Calendar.HOUR_OF_DAY, 0);
+            startCal.set(Calendar.MINUTE, 0);
+            startCal.set(Calendar.SECOND, 0);
+            startCal.set(Calendar.MILLISECOND, 0);
+        }
+        
+        // 生成日期列表
+        List<String> dates = new ArrayList<>();
+        List<Integer> uploadCounts = new ArrayList<>();
+        
+        Calendar tempCal = (Calendar) startCal.clone();
+        while (!tempCal.after(endCal)) {
+            dates.add(displaySdf.format(tempCal.getTime()));
+            
+            // 获取当天的开始和结束时间
+            Calendar dayStart = (Calendar) tempCal.clone();
+            dayStart.set(Calendar.HOUR_OF_DAY, 0);
+            dayStart.set(Calendar.MINUTE, 0);
+            dayStart.set(Calendar.SECOND, 0);
+            dayStart.set(Calendar.MILLISECOND, 0);
+            
+            Calendar dayEnd = (Calendar) tempCal.clone();
+            dayEnd.set(Calendar.HOUR_OF_DAY, 23);
+            dayEnd.set(Calendar.MINUTE, 59);
+            dayEnd.set(Calendar.SECOND, 59);
+            dayEnd.set(Calendar.MILLISECOND, 999);
+            
+            // 查询当天的上传数量
+            long count = this.lambdaQuery()
+                    .ge(Picture::getCreateTime, dayStart.getTime())
+                    .le(Picture::getCreateTime, dayEnd.getTime())
+                    .count();
+            
+            uploadCounts.add((int) count);
+            
+            // 移到下一天
+            tempCal.add(Calendar.DAY_OF_MONTH, 1);
+        }
+        
+        return UploadTrendVO.builder()
+                .dates(dates)
+                .uploadCounts(uploadCounts)
+                .build();
+    }
+
+    @Override
+    public ApprovedTrendVO getApprovedTrend(UploadTrendRequest uploadTrendRequest) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat displaySdf = new SimpleDateFormat("yyyy-M-d");
+        
+        Calendar startCal = Calendar.getInstance();
+        Calendar endCal = Calendar.getInstance();
+        
+        // 设置结束日期为今天的最后一刻
+        endCal.set(Calendar.HOUR_OF_DAY, 23);
+        endCal.set(Calendar.MINUTE, 59);
+        endCal.set(Calendar.SECOND, 59);
+        endCal.set(Calendar.MILLISECOND, 999);
+        
+        // 根据参数确定日期范围
+        String dateRange = uploadTrendRequest.getDateRange();
+        String startDateStr = uploadTrendRequest.getStartDate();
+        String endDateStr = uploadTrendRequest.getEndDate();
+        
+        if (StrUtil.isNotEmpty(startDateStr) && StrUtil.isNotEmpty(endDateStr)) {
+            // 自定义日期范围
+            try {
+                startCal.setTime(sdf.parse(startDateStr));
+                endCal.setTime(sdf.parse(endDateStr));
+                endCal.set(Calendar.HOUR_OF_DAY, 23);
+                endCal.set(Calendar.MINUTE, 59);
+                endCal.set(Calendar.SECOND, 59);
+                endCal.set(Calendar.MILLISECOND, 999);
+            } catch (Exception e) {
+                log.error("日期解析失败", e);
+            }
+        } else {
+            // 预设日期范围
+            if ("30days".equals(dateRange)) {
+                startCal.add(Calendar.DAY_OF_MONTH, -29);
+            } else if ("15days".equals(dateRange)) {
+                startCal.add(Calendar.DAY_OF_MONTH, -14);
+            } else if ("7days".equals(dateRange)) {
+                startCal.add(Calendar.DAY_OF_MONTH, -6);
+            } else {
+                // 默认本月
+                startCal.set(Calendar.DAY_OF_MONTH, 1);
+            }
+            startCal.set(Calendar.HOUR_OF_DAY, 0);
+            startCal.set(Calendar.MINUTE, 0);
+            startCal.set(Calendar.SECOND, 0);
+            startCal.set(Calendar.MILLISECOND, 0);
+        }
+        
+        // 生成日期列表
+        List<String> dates = new ArrayList<>();
+        List<Integer> approvedCounts = new ArrayList<>();
+        
+        Calendar tempCal = (Calendar) startCal.clone();
+        while (!tempCal.after(endCal)) {
+            dates.add(displaySdf.format(tempCal.getTime()));
+            
+            // 获取当天的开始和结束时间
+            Calendar dayStart = (Calendar) tempCal.clone();
+            dayStart.set(Calendar.HOUR_OF_DAY, 0);
+            dayStart.set(Calendar.MINUTE, 0);
+            dayStart.set(Calendar.SECOND, 0);
+            dayStart.set(Calendar.MILLISECOND, 0);
+            
+            Calendar dayEnd = (Calendar) tempCal.clone();
+            dayEnd.set(Calendar.HOUR_OF_DAY, 23);
+            dayEnd.set(Calendar.MINUTE, 59);
+            dayEnd.set(Calendar.SECOND, 59);
+            dayEnd.set(Calendar.MILLISECOND, 999);
+            
+            // 查询当天审核通过的数量（道路有异常 + 道路无异常）
+            long count = this.lambdaQuery()
+                    .ge(Picture::getCreateTime, dayStart.getTime())
+                    .le(Picture::getCreateTime, dayEnd.getTime())
+                    .in(Picture::getReviewStatus, 
+                            PictureReviewStatusEnum.PASS.getValue(), 
+                            PictureReviewStatusEnum.NO_ISSUE.getValue())
+                    .count();
+            
+            approvedCounts.add((int) count);
+            
+            // 移到下一天
+            tempCal.add(Calendar.DAY_OF_MONTH, 1);
+        }
+        
+        return ApprovedTrendVO.builder()
+                .dates(dates)
+                .approvedCounts(approvedCounts)
+                .build();
+    }
+
+    @Override
+    public DefectStatisticsVO getDefectStatistics(DefectStatisticsRequest defectStatisticsRequest) {
+        // 构建地址查询条件
+        QueryWrapper<Picture> queryWrapper = new QueryWrapper<>();
+        
+        // 根据省市区构建地址查询
+        StringBuilder addressBuilder = new StringBuilder();
+        if (StrUtil.isNotEmpty(defectStatisticsRequest.getProvince())) {
+            addressBuilder.append(defectStatisticsRequest.getProvince());
+        }
+        if (StrUtil.isNotEmpty(defectStatisticsRequest.getCity())) {
+            addressBuilder.append(defectStatisticsRequest.getCity());
+        }
+        if (StrUtil.isNotEmpty(defectStatisticsRequest.getDistrict())) {
+            addressBuilder.append(defectStatisticsRequest.getDistrict());
+        }
+        
+        // 如果有地址条件，添加模糊查询
+        if (addressBuilder.length() > 0) {
+            queryWrapper.likeRight("address", addressBuilder.toString());
+        }
+        
+        // 只查询已审核通过的图片
+        queryWrapper.in("reviewStatus", 
+                PictureReviewStatusEnum.PASS.getValue(), 
+                PictureReviewStatusEnum.NO_ISSUE.getValue());
+        
+        // 查询符合条件的图片
+        List<Picture> pictures = this.list(queryWrapper);
+        
+        // 统计缺陷类型
+        Map<String, Integer> defectCountMap = new HashMap<>();
+        int totalCount = 0;
+        
+        for (Picture picture : pictures) {
+            if (StrUtil.isEmpty(picture.getProcessedResult())) {
+                continue;
+            }
+            
+            // 解析 processedResult，格式如：["修补坑洞(置信度:45.73%)", "井盖(置信度:38.75%)"]
+            try {
+                List<String> defects = JSONUtil.toList(picture.getProcessedResult(), String.class);
+                for (String defect : defects) {
+                    // 提取缺陷类型（去掉置信度部分）
+                    String defectType = extractDefectType(defect);
+                    if (StrUtil.isNotEmpty(defectType)) {
+                        defectCountMap.merge(defectType, 1, Integer::sum);
+                        totalCount++;
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("解析 processedResult 失败：{}", picture.getProcessedResult(), e);
+            }
+        }
+        
+        // 构建返回结果
+        List<DefectStatisticsVO.DefectItem> defectItems = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : defectCountMap.entrySet()) {
+            String defectType = entry.getKey();
+            Integer count = entry.getValue();
+            Double percentage = totalCount > 0 ? 
+                    Math.round((double) count / totalCount * 10000.0) / 100.0 : 0.0;
+            
+            defectItems.add(DefectStatisticsVO.DefectItem.builder()
+                    .defectType(defectType)
+                    .count(count)
+                    .percentage(percentage)
+                    .build());
+        }
+        
+        // 按数量降序排序
+        defectItems.sort((a, b) -> b.getCount().compareTo(a.getCount()));
+        
+        return DefectStatisticsVO.builder()
+                .defects(defectItems)
+                .totalCount(totalCount)
+                .build();
+    }
+    
+    /**
+     * 从缺陷描述中提取缺陷类型（去掉置信度部分）
+     * 例如："修补坑洞(置信度:45.73%)" -> "修补坑洞"
+     */
+    private String extractDefectType(String defect) {
+        if (StrUtil.isEmpty(defect)) {
+            return null;
+        }
+        // 去掉括号及括号内的内容
+        int index = defect.indexOf("(");
+        if (index > 0) {
+            return defect.substring(0, index).trim();
+        }
+        return defect.trim();
+    }
+
+    @Override
+    public Page<PictureVO> getMyPictureVOPage(PictureQueryRequest pictureQueryRequest, User loginUser, HttpServletRequest request) {
+        if (pictureQueryRequest == null) {
+            pictureQueryRequest = new PictureQueryRequest();
+        }
+        
+        // 设置当前用户 ID
+        pictureQueryRequest.setUserId(loginUser.getId());
+        
+        long current = pictureQueryRequest.getCurrent();
+        long size = pictureQueryRequest.getPageSize();
+        
+        // 查询数据库
+        Page<Picture> picturePage = this.page(new Page<>(current, size),
+                this.getQueryWrapper(pictureQueryRequest));
+        
+        // 获取封装类
+        return this.getPictureVOPage(picturePage, request);
     }
 
 

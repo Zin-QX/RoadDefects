@@ -3,8 +3,9 @@ import UserLoginPage from '@/pages/user/UserLoginPage.vue'
 import UserRegisterPage from '@/pages/user/UserRegisterPage.vue'
 import UserManagePage from '@/pages/admin/UserManagePage.vue'
 import PictureManagePage from '@/pages/admin/PictureManagePage.vue'
+import StatisticsPage from '@/pages/admin/StatisticsPage.vue'
+import RoadDataPage from '@/pages/admin/RoadDataPage.vue'
 import HomePage from '@/pages/HomePage.vue'
-import StatisticsPage from '@/pages/StatisticsPage.vue'
 
 
 const router = createRouter({
@@ -16,8 +17,8 @@ const router = createRouter({
     component: HomePage,
   },
   {
-    path: '/statistics',
-    name: '道路缺陷统计',
+    path: '/admin/statistics',
+    name: '控制台',
     component: StatisticsPage,
   },
   {
@@ -39,6 +40,11 @@ const router = createRouter({
     path: '/admin/pictureManage',
     name: '图片管理',
     component: PictureManagePage,
+  },
+  {
+    path: '/roadData',
+    name: '道路数据',
+    component: RoadDataPage,
   },
 
   {

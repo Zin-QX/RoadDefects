@@ -11,6 +11,7 @@ import com.zinqx.roaddefectsbackend.model.entity.Authorization;
 */
 public interface AuthorizationService extends IService<Authorization> {
 
+
     /**
      * 微信登录
      * @param AuthorizationLoginDTO
