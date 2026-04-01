@@ -14,12 +14,15 @@ def get_cos_client() -> CosS3Client:
     return CosS3Client(config)
 
 
-def upload_to_cos(local_path: str, remote_path: str = None) -> str:
+def upload_to_cos(local_path: str, user_id: int = None, remote_path: str = None) -> str:
     client = get_cos_client()
     
     if remote_path is None:
         file_ext = os.path.splitext(local_path)[1]
-        remote_path = f"road-defects/{uuid.uuid4().hex}{file_ext}"
+        if user_id is not None:
+            remote_path = f"road-defects/{user_id}/{uuid.uuid4().hex}{file_ext}"
+        else:
+            remote_path = f"road-defects/{uuid.uuid4().hex}{file_ext}"
     
     with open(local_path, "rb") as fp:
         client.put_object(

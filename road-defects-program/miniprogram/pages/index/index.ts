@@ -1,5 +1,6 @@
 import { getPictureList, PictureVO, uploadPicture, PictureUploadRequest } from '../../utils/api'
 import { isLoggedIn } from '../../utils/auth'
+import { formatDateTime } from '../../utils/util'
 
 interface MarkerItem {
   id: number
@@ -60,9 +61,14 @@ Component({
       const markerId = e.detail.markerId
       const marker = this.data.markers.find(m => m.id === markerId)
       if (marker) {
+        const picture = marker.pictureData
         this.setData({
           showDetail: true,
-          currentPicture: marker.pictureData
+          currentPicture: {
+            ...picture,
+            createTime: formatDateTime(picture.createTime),
+            updateTime: formatDateTime(picture.updateTime)
+          }
         })
       }
     },
@@ -79,7 +85,13 @@ Component({
         const result = await getPictureList({})
         const pictureList = result.records || []
         
-        const markers: MarkerItem[] = pictureList.map((item, index) => ({
+        const formattedList = pictureList.map(item => ({
+          ...item,
+          createTime: formatDateTime(item.createTime),
+          updateTime: formatDateTime(item.updateTime)
+        }))
+        
+        const markers: MarkerItem[] = formattedList.map((item, index) => ({
           id: index,
           latitude: item.latitude,
           longitude: item.longitude,
@@ -89,7 +101,7 @@ Component({
         }))
         
         this.setData({ 
-          pictureList,
+          pictureList: formattedList,
           markers
         })
       } catch (error) {

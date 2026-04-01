@@ -38,6 +38,7 @@ CLASS_ID_TO_CN = {
 class DetectionRequest(BaseModel):
     id: int
     url: str
+    userId: int
 
 
 class DetectionResult(BaseModel):
@@ -60,7 +61,7 @@ async def detect_defects(request: DetectionRequest):
         output_path, detections = process_image(input_path)
         logger.info(f"Model processing complete, found {len(detections)} detections")
         
-        image_url = upload_to_cos(output_path)
+        image_url = upload_to_cos(output_path, user_id=request.userId)
         logger.info(f"Result uploaded to {image_url}")
         
         if detections:

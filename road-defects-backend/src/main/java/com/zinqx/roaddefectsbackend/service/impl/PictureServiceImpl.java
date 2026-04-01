@@ -156,7 +156,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             if (existingPicture.getId() != null && existingPicture.getUrl() != null) {
                 try {
                     PythonServiceClient.PythonProcessResult processResult = 
-                            pythonServiceClient.processPicture(existingPicture.getId(), existingPicture.getUrl());
+                            pythonServiceClient.processPicture(existingPicture.getId(), existingPicture.getUrl(), existingPicture.getUserId());
                     if (processResult != null) {
                         // 更新处理结果到数据库
                         existingPicture.setProcessedUrl(processResult.getProcessedUrl());
@@ -178,7 +178,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             if (picture.getId() != null && picture.getUrl() != null) {
                 try {
                     PythonServiceClient.PythonProcessResult processResult = 
-                            pythonServiceClient.processPicture(picture.getId(), picture.getUrl());
+                            pythonServiceClient.processPicture(picture.getId(), picture.getUrl(), picture.getUserId());
                     if (processResult != null) {
                         // 更新处理结果到数据库
                         picture.setProcessedUrl(processResult.getProcessedUrl());

@@ -18,13 +18,15 @@ Java 后端在用户上传完成后会调用 Python 图片处理接口，将图�
 |--------|------|------|------|
 | id | Long | 是 | 图片 ID |
 | url | String | 是 | 图片 URL（COS 地址） |
+| userId | Long | 是 | 用户 ID，用于区分用户文件 |
 
 ### 请求示例
 
 ```json
 {
   "id": 2034196409431478274,
-  "url": "https://zinqx-1391992760.cos.ap-guangzhou.myqcloud.com/RoadDefects/2026-03-18_2PHlIeaFzhoqn0QT.jpg"
+  "url": "https://zinqx-1391992760.cos.ap-guangzhou.myqcloud.com/RoadDefects/2026-03-18_2PHlIeaFzhoqn0QT.jpg",
+  "userId": 1234567890
 }
 ```
 
@@ -68,16 +70,17 @@ def detect():
     data = request.get_json()
     picture_id = data.get('id')
     picture_url = data.get('url')
+    user_id = data.get('userId')
     
-    if not picture_id or not picture_url:
+    if not picture_id or not picture_url or not user_id:
         return jsonify({
-            "error": "缺少必要参数：id 和 url"
+            "error": "缺少必要参数：id、url 和 userId"
         }), 400
     
     try:
         # 1. 下载图片
         # 2. 调用 AI 模型进行处理
-        # 3. 上传处理后的图片到 COS
+        # 3. 根据 user_id 上传处理后的图片到对应用户目录
         # 4. 返回处理结果
         
         return jsonify({
@@ -96,10 +99,10 @@ if __name__ == '__main__':
 
 ### 2. 处理流程
 
-1. **接收参数**：从请求中获取 pictureId 和 pictureUrl
+1. **接收参数**：从请求中获取 pictureId、pictureUrl 和 userId
 2. **下载图片**：根据 pictureUrl 从 COS 下载原始图片
 3. **AI 处理**：调用深度学习模型进行裂缝检测
-4. **上传结果**：将处理后的图片上传到 COS
+4. **上传结果**：根据 userId 将处理后的图片上传到对应用户目录（例如：`RoadDefects/{userId}/processed/`）
 5. **返回结果**：返回处理后的图片 URL 和处理结果
 
 ### 3. 注意事项

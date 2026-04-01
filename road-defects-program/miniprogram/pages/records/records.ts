@@ -1,5 +1,6 @@
 import { getMyPictureList, PictureVO, MyPictureQueryRequest } from '../../utils/api'
 import { isLoggedIn } from '../../utils/auth'
+import { formatDateTime } from '../../utils/util'
 
 Component({
   data: {
@@ -37,8 +38,14 @@ Component({
 
         const result = await getMyPictureList(params)
         
+        const formattedRecords = (result.records || []).map(item => ({
+          ...item,
+          createTime: formatDateTime(item.createTime),
+          updateTime: formatDateTime(item.updateTime)
+        }))
+        
         this.setData({
-          pictureList: result.records || [],
+          pictureList: formattedRecords,
           total: result.total
         })
       } catch (error) {

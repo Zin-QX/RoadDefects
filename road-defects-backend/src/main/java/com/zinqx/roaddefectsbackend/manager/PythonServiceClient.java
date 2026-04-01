@@ -27,10 +27,11 @@ public class PythonServiceClient {
      * 
      * @param pictureId 图片 ID
      * @param pictureUrl 图片 URL
+     * @param userId 用户 ID
      * @return 处理结果，包含 processedUrl 和 processedResult
      */
-    public PythonProcessResult processPicture(Long pictureId, String pictureUrl) {
-        log.info("开始调用 Python 图片处理接口，pictureId: {}, pictureUrl: {}", pictureId, pictureUrl);
+    public PythonProcessResult processPicture(Long pictureId, String pictureUrl, Long userId) {
+        log.info("开始调用 Python 图片处理接口，pictureId: {}, pictureUrl: {}, userId: {}", pictureId, pictureUrl, userId);
         
         String processUrl = pythonServiceProperties.getProcessPictureUrl();
         
@@ -38,13 +39,15 @@ public class PythonServiceClient {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("id", String.valueOf(pictureId));
         paramMap.put("url", pictureUrl);
+        paramMap.put("userId", String.valueOf(userId));
         
         try {
             // 发送 POST 请求（JSON 格式）
             // Python 接口请求格式：
             // {
             //   "id": 2034196409431478274,
-            //   "url": "https://zinqx-1391992760.cos.ap-guangzhou.myqcloud.com/RoadDefects/xxx.jpg"
+            //   "url": "https://zinqx-1391992760.cos.ap-guangzhou.myqcloud.com/RoadDefects/xxx.jpg",
+            //   "userId": 1234567890
             // }
             String responseJson = HttpClientUtil.doPost4Json(processUrl, paramMap);
             log.info("Python 接口返回：{}", responseJson);
