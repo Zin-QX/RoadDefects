@@ -34,8 +34,8 @@ public class CleanOrphanFilesJob {
      * 每 5 分钟执行一次（测试用）
      * 正式环境为：0 0 2 * * ?（每天凌晨 2 点）
      */
-    @Scheduled(cron = "0 */5 * * * ?")
-//    @Scheduled(cron = "0 0 2 * * ?")
+//    @Scheduled(cron = "0 */5 * * * ?")
+    @Scheduled(cron = "0 0 2 * * ?")
     public void cleanOrphanFiles() {
         log.info("开始执行清理孤立文件任务");
         
