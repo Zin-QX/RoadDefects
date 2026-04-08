@@ -49,23 +49,27 @@
           {{ formatFileSize(record.picSize) }}
         </template>
         <template v-else-if="column.dataIndex === 'processedResult'">
-          <template v-if="record.processedResult">
-            <span v-if="typeof record.processedResult === 'string'">
-              {{ parseProcessedResult(record.processedResult) }}
+          <a-tooltip :title="typeof record.processedResult === 'string' ? parseProcessedResult(record.processedResult) : (Array.isArray(record.processedResult) && record.processedResult.length > 0 ? record.processedResult.join('<br>') : '-')">
+            <span class="ellipsis-text">
+              <template v-if="record.processedResult">
+                <span v-if="typeof record.processedResult === 'string'">
+                  {{ parseProcessedResult(record.processedResult) }}
+                </span>
+                <span v-else-if="Array.isArray(record.processedResult) && record.processedResult.length > 0">
+                  {{ record.processedResult.join('；') }}
+                </span>
+                <span v-else>-</span>
+              </template>
+              <span v-else>-</span>
             </span>
-            <span v-else-if="Array.isArray(record.processedResult) && record.processedResult.length > 0">
-              {{ record.processedResult.join('；') }}
-            </span>
-            <span v-else>-</span>
-          </template>
-          <span v-else>-</span>
+          </a-tooltip>
         </template>
         <template v-else-if="column.dataIndex === 'createTime' || column.dataIndex === 'updateTime' || column.dataIndex === 'reviewTime'">
           <a-tooltip :title="dayjs(record[column.dataIndex]).format('YYYY-MM-DD HH:mm:ss')">
             <span class="ellipsis-text">{{ dayjs(record[column.dataIndex]).format('YYYY-MM-DD') }}</span>
           </a-tooltip>
         </template>
-        <template v-else-if="column.dataIndex === 'id' || column.dataIndex === 'userId' || column.dataIndex === 'reviewerId'">
+        <template v-else-if="column.dataIndex === 'id' || column.dataIndex === 'userId' || column.dataIndex === 'reviewerId' || column.dataIndex === 'phone'">
           <a-tooltip :title="record[column.dataIndex]">
             <span class="ellipsis-text">{{ record[column.dataIndex] }}</span>
           </a-tooltip>
@@ -176,13 +180,19 @@ const columns = [
   {
     title: '处理结果',
     dataIndex: 'processedResult',
-    width: 250,
+    width:180,
     ellipsis: true,
     align: 'center',
   },
   {
     title: '用户ID',
     dataIndex: 'userId',
+    width: 100,
+    align: 'center',
+  },
+  {
+    title: '用户电话',
+    dataIndex:'phone',
     width: 100,
     align: 'center',
   },

@@ -295,9 +295,14 @@ declare namespace API {
     latitude?: number
     longitude?: number
     name?: string
+    phone?: number
     picSize?: number
     processedResult?: string[]
     processedUrl?: string
+    reviewMessage?: string
+    reviewStatus?: number
+    reviewTime?: string
+    reviewerId?: number
     updateTime?: string
     url?: string
     user?: UserVO
@@ -338,6 +343,7 @@ declare namespace API {
     editTime?: string
     id?: number
     isDelete?: number
+    phone?: number
     updateTime?: string
     userAccount?: string
     userAvatar?: string

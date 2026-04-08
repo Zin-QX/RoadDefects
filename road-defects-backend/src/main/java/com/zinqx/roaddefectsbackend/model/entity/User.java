@@ -46,6 +46,11 @@ public class User {
     private String userProfile;
 
     /**
+     * 手机号
+     */
+    private String Phone;
+
+    /**
      * 用户角色：user/admin
      */
     private String userRole;

@@ -29,7 +29,12 @@ public class UserAddRequest implements Serializable {
     private String userProfile;
 
     /**
-     * 用户角色: user, admin
+     * 手机号
+     */
+    private String phone;
+
+    /**
+     * 用户角色：user, admin
      */
     private String userRole;
 }

@@ -62,7 +62,12 @@ public class PictureVO implements Serializable {
     /**  
      * 创建用户 id
      */  
-    private Long userId;  
+    private Long userId;
+
+    /**
+     * 创建用户电话
+     */
+    private String phone;
   
     /**  
      * 创建时间  

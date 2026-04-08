@@ -68,6 +68,11 @@ public class Picture {
     private Long userId;
 
     /**
+     * 创建用户电话
+     */
+    private String phone;
+
+    /**
      * 创建时间
      */
     private Date createTime;

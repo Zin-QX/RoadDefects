@@ -133,6 +133,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         picture.setName(uploadPictureResult.getPicName());
         picture.setPicSize(uploadPictureResult.getPicSize());
         picture.setUserId(loginUser.getId());
+        // 填充用户电话
+        picture.setPhone(loginUser.getPhone());
         // 如果 pictureId 不为空，表示更新，否则是新增
         if (pictureId != null) {
             // 如果是更新，先查询原有记录
@@ -149,6 +151,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             existingPicture.setName(uploadPictureResult.getPicName());
             existingPicture.setPicSize(uploadPictureResult.getPicSize());
             existingPicture.setUpdateTime(new Date());
+            // 更新用户电话（如果用户电话有变化）
+            existingPicture.setPhone(loginUser.getPhone());
             boolean result = this.updateById(existingPicture);
             ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败");
             
