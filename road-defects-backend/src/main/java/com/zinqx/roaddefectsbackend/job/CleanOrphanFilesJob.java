@@ -2,7 +2,6 @@ package com.zinqx.roaddefectsbackend.job;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zinqx.roaddefectsbackend.manager.CosManager;
 import com.zinqx.roaddefectsbackend.mapper.PictureMapper;
 import com.zinqx.roaddefectsbackend.model.entity.Picture;
@@ -35,8 +34,8 @@ public class CleanOrphanFilesJob {
      * 每 5 分钟执行一次（测试用）
      * 正式环境为：0 0 2 * * ?（每天凌晨 2 点）
      */
-//    @Scheduled(cron = "0 */5 * * * ?")
-    @Scheduled(cron = "0 0 2 * * ?")
+    @Scheduled(cron = "0 */5 * * * ?")
+//    @Scheduled(cron = "0 0 2 * * ?")
     public void cleanOrphanFiles() {
         log.info("开始执行清理孤立文件任务");
         
@@ -92,22 +91,22 @@ public class CleanOrphanFilesJob {
     }
 
     /**
-     * 获取数据库中所有未删除记录的文件 key
+     * 获取数据库中所有有记录的文件 key（无论 isDelete=0/1）
      * 包括原始图片 url 和处理后的图片 processedUrl
-     * 逻辑删除的记录（isDelete=1）不参与计算，其对应的 COS 文件不删除
+     *
+     * 需求：COS 中只删除“数据库完全没有记录”的文件；
+     * 因此即使图片记录被逻辑删除（isDelete=1），也必须视为“数据库有记录”，不能删除其 COS 文件。
      */
     private Set<String> getAllDbFileKeys() {
         Set<String> dbFileKeys = new HashSet<>();
-        
-        // 查询所有未删除图片的 url 和 processedUrl 字段
-        // MyBatis-Plus 的 @TableLogic 会自动过滤 isDelete=1 的记录
-        QueryWrapper<Picture> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("url", "processedUrl");
-        queryWrapper.eq("isDelete", 0);  // 明确指定只查询未删除的记录
-        List<Picture> pictures = pictureMapper.selectList(queryWrapper);
-        
-        log.info("查询到 {} 条未删除的图片记录", pictures.size());
-        
+
+        // 查询所有图片记录的 url / processedUrl（包含 isDelete=1 的记录）
+        // 说明：使用自定义 SQL，避免 MyBatis-Plus 内置逻辑删除条件导致漏查已逻辑删除记录
+        // 使用 MyBatis-Plus 查询会忽略 isDelete=1 的逻辑删除条件
+        List<Picture> pictures = pictureMapper.selectAllUrlFields();
+
+        log.info("查询到 {} 条图片记录（含逻辑删除记录）", pictures.size());
+
         // 提取 url 和 processedUrl 中的 key
         for (Picture picture : pictures) {
             // 提取 url 的 key
@@ -115,14 +114,14 @@ public class CleanOrphanFilesJob {
             if (StrUtil.isNotEmpty(urlKey)) {
                 dbFileKeys.add(urlKey);
             }
-            
+
             // 提取 processedUrl 的 key
             String processedUrlKey = extractKeyFromUrl(picture.getProcessedUrl());
             if (StrUtil.isNotEmpty(processedUrlKey)) {
                 dbFileKeys.add(processedUrlKey);
             }
         }
-        
+
         return dbFileKeys;
     }
 
