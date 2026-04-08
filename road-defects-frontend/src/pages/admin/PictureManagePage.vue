@@ -121,9 +121,10 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import {
   listPictureByPageUsingPost,
-  doPictureReviewUsingPost
+  doPictureReviewUsingPost,
+  deletePictureUsingPost
 } from '@/api/pictureController.ts'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import dayjs from 'dayjs'
 
 const columns = [
@@ -303,15 +304,29 @@ const doDelete = async (id: number) => {
   if (!id) {
     return
   }
-  // 这里调用删除接口，如果没有删除接口可以暂时用逻辑删除
-  // const res = await deletePictureUsingPost({ id })
-  // if (res.data.code === 0) {
-  //   message.success('删除成功')
-  //   fetchData()
-  // } else {
-  //   message.error('删除失败')
-  // }
-  message.warning('删除功能待实现')
+
+  Modal.confirm({
+    title: '确认删除',
+    content: '确定要删除这张图片吗？此操作不可恢复。',
+    okText: '确认',
+    cancelText: '取消',
+    okType: 'danger',
+    onOk: async () => {
+      try {
+        const res = await deletePictureUsingPost({ id })
+
+        if (res.data.code === 0) {
+          message.success('删除成功')
+          fetchData()
+        } else {
+          message.error('删除失败：' + (res.data.message || '未知错误'))
+        }
+      } catch (error) {
+        message.error('删除失败，请稍后重试')
+        console.error('删除图片失败：', error)
+      }
+    },
+  })
 }
 
 // 审核相关

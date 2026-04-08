@@ -32,6 +32,7 @@ D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefects
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\controller\PictureController.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\exception\BusinessException.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\config\WeChatProperties.java
+D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\job\CleanOrphanFilesJob.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\config\MyBatisPlusConfig.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\model\dto\picture\PictureReviewRequest.java
 D:\Stage_1\Road-defects\road-defects-backend\src\main\java\com\zinqx\roaddefectsbackend\common\ResultUtils.java

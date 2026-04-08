@@ -67,7 +67,7 @@ public class PictureController {
     }
 
     /**
-     * 道路处理后删除图片
+     * 删除图片
      */
     @PostMapping("/delete")
     public BaseResponse<Boolean> deletePicture(@RequestBody DeleteRequest deleteRequest, @RequestHeader("Authorization") String token) {
