@@ -1,0 +1,123 @@
+<view class="page-container">
+  <view class="map-container">
+    <map 
+      id="tmap"
+      class="tmap"
+      longitude="{{longitude}}"
+      latitude="{{latitude}}"
+      scale="{{scale}}"
+      markers="{{markers}}"
+      bindregionchange="onRegionChange"
+      bindmarkertap="onMarkerTap"
+      bindready="onMapReady"
+      show-location
+    ></map>
+  </view>
+  <view class="upload-btn-container">
+    <t-button theme="primary" size="large" bind:tap="onUpload">+ 上传</t-button>
+  </view>
+
+  <view class="detail-popup {{showDetail ? 'show' : ''}}" catchtouchmove="true">
+    <view class="detail-mask" bindtap="closeDetail"></view>
+    <view class="detail-content">
+      <view class="detail-header">
+        <text class="detail-title">缺陷详情</text>
+        <text class="detail-close" bindtap="closeDetail">×</text>
+      </view>
+      <view class="detail-body" wx:if="{{currentPicture}}">
+        <view class="detail-images">
+          <view class="image-item" wx:if="{{currentPicture.processedUrl}}">
+            <text class="image-label">处理结果</text>
+            <image 
+              class="detail-image" 
+              src="{{currentPicture.processedUrl}}" 
+              mode="aspectFit"
+              bindtap="previewProcessedImage"
+            ></image>
+          </view>
+        </view>
+        <view class="detail-info">
+          <view class="info-row">
+            <text class="info-label">地址：</text>
+            <text class="info-value">{{currentPicture.address}}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">经纬度：</text>
+            <text class="info-value">{{currentPicture.longitude}}, {{currentPicture.latitude}}</text>
+          </view>
+          <view class="info-row" wx:if="{{currentPicture.processedResult && currentPicture.processedResult.length > 0}}">
+            <text class="info-label">检测结果：</text>
+            <view class="info-value result-list">
+              <text class="result-text" wx:for="{{currentPicture.processedResult}}" wx:key="index">{{item}}</text>
+            </view>
+          </view>
+          <view class="info-row">
+            <text class="info-label">更新时间：</text>
+            <text class="info-value">{{currentPicture.updateTime}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="upload-popup {{showUploadPopup ? 'show' : ''}}" catchtouchmove="true">
+    <view class="upload-mask" bindtap="closeUploadPopup"></view>
+    <view class="upload-content">
+      <view class="upload-header">
+        <text class="upload-title">上传缺陷图片</text>
+        <text class="upload-close" bindtap="closeUploadPopup">×</text>
+      </view>
+      <view class="upload-body">
+        <view class="upload-image-section">
+          <view class="upload-image-label">选择图片</view>
+          <view class="upload-image-box" bindtap="chooseImage">
+            <image wx:if="{{tempFilePath}}" class="preview-image" src="{{tempFilePath}}" mode="aspectFill"></image>
+            <view wx:else class="upload-placeholder">
+              <text class="upload-placeholder-icon">+</text>
+              <text class="upload-placeholder-text">点击选择图片</text>
+            </view>
+          </view>
+        </view>
+        
+        <view class="upload-form-section">
+          <view class="form-item">
+            <text class="form-label">经度：</text>
+            <input 
+              class="form-input" 
+              type="digit"
+              placeholder="请输入经度" 
+              value="{{uploadForm.longitude}}"
+              data-field="longitude"
+              bindinput="onInputChange"
+            />
+          </view>
+          <view class="form-item">
+            <text class="form-label">纬度：</text>
+            <input 
+              class="form-input" 
+              type="digit"
+              placeholder="请输入纬度" 
+              value="{{uploadForm.latitude}}"
+              data-field="latitude"
+              bindinput="onInputChange"
+            />
+          </view>
+          <view class="form-item">
+            <text class="form-label">地址：</text>
+            <input 
+              class="form-input" 
+              placeholder="请输入地址" 
+              value="{{uploadForm.address}}"
+              data-field="address"
+              bindinput="onInputChange"
+            />
+          </view>
+        </view>
+
+        <view class="upload-actions">
+          <t-button theme="primary" size="large" bind:tap="submitUpload">提交上传</t-button>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

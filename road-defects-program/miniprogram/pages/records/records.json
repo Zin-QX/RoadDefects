@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "t-row": "tdesign-miniprogram/row/row",
+    "t-col": "tdesign-miniprogram/col/col",
+    "t-cell": "tdesign-miniprogram/cell/cell"
+  }
+}

@@ -1,0 +1,67 @@
+server:
+  port: 8122
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: road-defects-backend
+  # 数据库配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/road_defects
+    username: root
+    password: root123
+  # 开放更大的文件上传体积
+  servlet:
+    multipart:
+      max-file-size: 10MB
+
+  #
+  profiles:
+    active: local
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    # 仅在开发环境开启日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 全局逻辑删除的实体字段名
+      logic-delete-value: 1 # 逻辑已删除值（默认为 1）
+      logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
+
+# 接口文档配置
+knife4j:
+  enable: true
+#    # 访问接口的时候,获取token的地址
+#  tokenUrl: http://ip:port/getToken
+  openapi:
+    title: "接口文档"
+    version: 1.0
+    group:
+      default:
+        api-rule: package
+        api-rule-resources:
+          - com.zinqx.roaddefectsbackend.controller
+          -
+zinqx:
+  jwt:
+    # 设置 jwt 签名加密时使用的秘钥
+    admin-secret-key: itcast
+    # 设置 jwt 过期时间
+    admin-ttl: 7200000  # 2小时后自动失效
+    # 设置前端传递过来的令牌名称
+    admin-token-name: token
+    user-secret-key: itheima
+    user-ttl: 7200000
+    user-token-name: authentication
+
+# Python 服务配置
+python:
+  service:
+    # Python 服务基础 URL
+    base-url: http://localhost:8000
+    # 图片处理接口路径
+    process-picture-endpoint: /detect

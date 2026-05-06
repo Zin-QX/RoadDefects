@@ -1,0 +1,16 @@
+settings_version: 0.0.4
+datasets_dir: D:\Stage_2\road-defects\road-defect-model\datasets
+weights_dir: weights
+runs_dir: runs
+uuid: ea515c5d0a2d2bcd054789c49a28960715bd696c7457dff4e2936d056f6749ea
+sync: true
+api_key: ''
+clearml: true
+comet: true
+dvc: true
+hub: true
+mlflow: true
+neptune: true
+raytune: true
+tensorboard: true
+wandb: true

@@ -1,0 +1,10 @@
+<t-tab-bar value="{{active}}" bind:change="onChange" split="{{false}}">
+  <t-tab-bar-item 
+    wx:for="{{list}}" 
+    wx:key="index" 
+    value="{{item.pagePath}}"
+    icon="{{item.icon}}"
+  >
+    {{item.text}}
+  </t-tab-bar-item>
+</t-tab-bar>

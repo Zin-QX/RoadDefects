@@ -1,0 +1,61 @@
+<view class="page-container">
+  <view class="content">
+    <block wx:if="{{isLoggedIn}}">
+      <view class="user-card">
+        <t-avatar size="96rpx" image="{{userInfo.avatarUrl}}" class="user-avatar"></t-avatar>
+        <view class="user-info">
+          <text class="user-name">{{userInfo.nickName || '用户'}}</text>
+          <text class="user-id">ID: {{userInfo.id}}</text>
+        </view>
+      </view>
+      
+      <view class="menu-list">
+        <view class="menu-item" bindtap="onLogout">
+          <text class="menu-text">退出登录</text>
+        </view>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view class="login-card">
+        <view class="login-header">
+          <button class="avatar-btn" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+            <t-avatar size="128rpx" image="{{tempAvatarUrl}}" icon="{{tempAvatarUrl ? '' : 'add'}}"></t-avatar>
+          </button>
+          <input 
+            type="nickname" 
+            class="nickname-input" 
+            placeholder="点击获取昵称" 
+            placeholder-class="nickname-placeholder"
+            bindblur="onNickNameBlur"
+            bindinput="onNickNameInput"
+            value="{{tempNickName}}"
+          />
+        </view>
+        
+        <view class="agreement-wrapper">
+          <checkbox-group bindchange="onAgreementChange">
+            <label class="agreement-label">
+              <checkbox value="agree" checked="{{agreed ? true : false}}" color="#0052d9"></checkbox>
+              <text class="agreement-text">
+                阅读并同意
+                <text class="agreement-link">《用户协议》</text>
+                <text class="agreement-link">《隐私政策》</text>
+              </text>
+            </label>
+          </checkbox-group>
+        </view>
+        
+        <t-button 
+          theme="primary" 
+          size="large" 
+          bind:tap="onLogin"
+          loading="{{loginLoading ? true : false}}"
+          disabled="{{!agreed || !tempNickName}}"
+        >
+          微信授权登录
+        </t-button>
+      </view>
+    </block>
+  </view>
+</view>

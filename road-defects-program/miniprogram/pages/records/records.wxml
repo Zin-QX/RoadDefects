@@ -1,0 +1,91 @@
+<view class="page-container">
+  <view class="content">
+    <view class="filter-tabs" wx:if="{{isLoggedIn}}">
+      <view class="filter-tab {{currentFilter === 'all' ? 'active' : ''}}" bindtap="onFilterChange" data-filter="all">全部</view>
+      <view class="filter-tab {{currentFilter === 'pending' ? 'active' : ''}}" bindtap="onFilterChange" data-filter="pending">待审核</view>
+      <view class="filter-tab {{currentFilter === 'passed' ? 'active' : ''}}" bindtap="onFilterChange" data-filter="passed">已通过</view>
+    </view>
+    
+    <view class="empty-tip" wx:if="{{!isLoggedIn}}">
+      <text>请先登录后查看记录</text>
+    </view>
+    
+    <block wx:else>
+      <view class="record-list" wx:if="{{pictureList.length > 0}}">
+        <t-cell 
+          wx:for="{{pictureList}}" 
+          wx:key="id"
+          title="{{item.address}}" 
+          description="{{item.createTime}}" 
+          align="top" 
+          image="{{item.url}}" 
+          hover 
+          bordered="{{false}}"
+          data-index="{{index}}"
+          bind:click="onCellTap"
+        />
+      </view>
+      
+      <view class="empty-tip" wx:else>
+        <text>暂无记录</text>
+      </view>
+    </block>
+  </view>
+
+  <view class="detail-popup {{showDetail ? 'show' : ''}}" catchtouchmove="true">
+    <view class="detail-mask" bindtap="closeDetail"></view>
+    <view class="detail-content">
+      <view class="detail-header">
+        <text class="detail-title">记录详情</text>
+        <text class="detail-close" bindtap="closeDetail">×</text>
+      </view>
+      <view class="detail-body" wx:if="{{currentPicture}}">
+        <view class="detail-images">
+          <view class="image-item" wx:if="{{currentPicture.processedUrl}}">
+            <text class="image-label">处理结果</text>
+            <image 
+              class="detail-image" 
+              src="{{currentPicture.processedUrl}}" 
+              mode="aspectFit"
+              bindtap="previewProcessedImage"
+            ></image>
+          </view>
+        </view>
+        <view class="detail-info">
+          <view class="info-row">
+            <text class="info-label">地址：</text>
+            <text class="info-value">{{currentPicture.address}}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">经纬度：</text>
+            <text class="info-value">{{currentPicture.longitude}}, {{currentPicture.latitude}}</text>
+          </view>
+          <view class="info-row" wx:if="{{currentPicture.processedResult && currentPicture.processedResult.length > 0}}">
+            <text class="info-label">检测结果：</text>
+            <view class="info-value result-list">
+              <text class="result-text" wx:for="{{currentPicture.processedResult}}" wx:key="index">{{item}}</text>
+            </view>
+          </view>
+          <view class="info-row">
+            <text class="info-label">审核状态：</text>
+            <text class="info-value {{currentPicture.reviewStatus === 1 ? 'status-pass' : currentPicture.reviewStatus === 2 ? 'status-rejected' : 'status-pending'}}">
+              {{currentPicture.reviewStatus === 1 ? '已通过' : currentPicture.reviewStatus === 2 ? '已拒绝' : '待审核'}}
+            </text>
+          </view>
+          <view class="info-row" wx:if="{{currentPicture.reviewMessage}}">
+            <text class="info-label">审核意见：</text>
+            <text class="info-value">{{currentPicture.reviewMessage}}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">创建时间：</text>
+            <text class="info-value">{{currentPicture.createTime}}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">更新时间：</text>
+            <text class="info-value">{{currentPicture.updateTime}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
